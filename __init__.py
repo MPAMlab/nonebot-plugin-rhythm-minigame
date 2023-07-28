@@ -10,10 +10,10 @@ from nonebot.params import CommandArg, RawCommand
 from nonebot.adapters.onebot.v11 import Bot, Event, Message
 from nonebot.exception import ActionFailed
 
-from .rhythmminigame_handle import RhythmMinigameDataManage, Action
-from .rhythmminigame_operate import *
-from .rhythmminigame_event import play_events, fight_events, dan_events
-from .config import LEVEL, random_config, rhythmminigame_config
+from .rhythm_handle import RhythmDataManage, Action
+from .rhythm_operate import *
+from .rhythm_event import play_events, fight_events, dan_events
+from .config import LEVEL, random_config, rhythm_config
 
 driver = get_driver()
 

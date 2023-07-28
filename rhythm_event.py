@@ -4,8 +4,8 @@ import random
 from functools import wraps
 from datetime import datetime
 
-from .rhythmminigame_handle import Action
-from .rhythmminigame_operate import playEvent, danEvent, fightEvent, _Event
+from .rhythm_handle import Action
+from .rhythm_operate import playEvent, danEvent, fightEvent, _Event
 from .config import MIN, MAX, LEVEL, rhythm_config
 
 play_events = []

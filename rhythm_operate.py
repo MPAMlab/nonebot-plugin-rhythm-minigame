@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 import time
 import random
-from .rhythmminigame_handle import RhythmDataManage, Action, RhythmData
+from .rhythm_handle import RhythmDataManage, Action, RhythmData
 from .config import MAX, MIN, CD, LEVEL, rhythm_config
 from enum import Enum
 
