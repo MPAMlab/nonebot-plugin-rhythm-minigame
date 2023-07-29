@@ -60,18 +60,18 @@ fightEvent.add_events(fight_events)
 random_config()
 
 
-@bread_buy.handle()
+@bread_play.handle()
 async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message = RawCommand()):
     try:
-        user_qq, group_id, name, msg_at, thing = await pre_get_data(event, bot, cmd, cmd_buy_ori)
-        buy_num = get_num_arg(args.extract_plain_text(), BuyEvent, group_id)
+        user_qq, group_id, name, msg_at, thing = await pre_get_data(event, bot, cmd, cmd_play_ori)
+        play_lev = get_num_arg(args.extract_plain_text(), PlayEvent, group_id)
     except ArgsError as e:
         await bot.send(event=event, message=str(e))
         return
     except CommandError:
         return
 
-    wait_time = cd_wait_time(group_id, user_qq, Action.BUY)
+    wait_time = cd_wait_time(group_id, user_qq, Action.PLAY)
     # 可见cd_wait_time函数的注释
     if wait_time > 0:
         data = BreadDataManage(group_id).get_bread_data(user_qq)
@@ -79,9 +79,9 @@ async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message =
     elif wait_time < 0:
         msg_txt = f"你被禁止购买{thing}啦！{(abs(wait_time) + CD.BUY.value) // 60}分钟后才能购买！"
     else:
-        event_ = BuyEvent(group_id)
+        event_ = PlayEvent(group_id)
         event_.set_user_id(user_qq)
-        msg_txt = event_.execute(buy_num)
+        msg_txt = event_.execute(play_lev)
 
     res_msg = msg_at + Message(msg_txt)
     await bot.send(event=event, message=res_msg)

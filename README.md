@@ -8,7 +8,7 @@ Edited from https://github.com/Mai-icy/nonebot-plugin-bread-shop
 ## 功能：
 ### 打歌
 
-歌曲分为三个等级 Basic/Adv/Exp，使用时指定等级或难度，如果不指定等级，难度将会分别在1-5/6-10/11-15级别中随机
+使用时指定等级，等级范围1-15
 
 **示例命令：打歌 Basic；打歌 Adv；打歌 13**
 

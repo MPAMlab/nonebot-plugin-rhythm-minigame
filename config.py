@@ -79,8 +79,8 @@ class CD(Enum):
 
 class MAX(Enum):
     """操作随机值上限"""
-    BUY = rhythm_config.max_buy
-    EAT = rhythm_config.max_eat
+    PLAY = rhythm_config.max_play
+    FIGHT = rhythm_config.max_fight
     ROB = rhythm_config.max_rob
     GIVE = rhythm_config.max_give
     BET = rhythm_config.max_bet
@@ -88,7 +88,7 @@ class MAX(Enum):
 
 class MIN(Enum):
     """操作随机值下限"""
-    BUY = rhythm_config.min_buy
+    PLAY = rhythm_config.min_play
     EAT = rhythm_config.min_eat
     ROB = rhythm_config.min_rob
     GIVE = rhythm_config.min_give
@@ -97,7 +97,7 @@ class MIN(Enum):
 
 def random_config():
     """设置操作数量是否由用户指定或随机"""
-    from .rhythmminigame_operate import BuyEvent, EatEvent, RobEvent, GiveEvent, BetEvent
+    from .rhythm_operate import BuyEvent, EatEvent, RobEvent, GiveEvent, BetEvent
     events = [BuyEvent, EatEvent, RobEvent, GiveEvent, BetEvent]
     global_settings = [rhythm_config.is_random_buy, rhythm_config.is_random_eat, rhythm_config.is_random_rob,
                        rhythm_config.is_random_give, rhythm_config.is_random_bet]

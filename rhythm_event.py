@@ -34,6 +34,32 @@ def probability(value, action: Action, *, priority: int = 5, group_id_list: list
         return inner
     return wrapper
 
+# 打歌特殊事件
+# 越级
+@probability(0.9, Action.PLAY, priority=5)
+def play_event_not_qualified(event: playEvent):
+    random_rating = random.randint(40, 94)
+    final_rating = random_rating * 0.8
+
+    if event.user_data.rating / 15 < event.other_data.rating:
+        return
+
+    append_text = f"越级失败！{event.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
+    event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
+    return append_text
+
+@probability(0.1, Action.PLAY, priority=5)
+def play_event_not_qualified_lucky(event: playEvent):
+    random_rating = random.randint(40, 94)
+    final_rating = random_rating * 0.8 * play_lev
+
+    if event.user_data.rating / 15 < event.other_data.rating:
+        return
+
+    append_text = f"越级失败！{event.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
+    event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
+    return append_text
+
 
 # region 购买特殊事件
 @probability(0.01, Action.BUY, priority=5)

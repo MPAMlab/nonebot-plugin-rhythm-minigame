@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 import time
 import random
-from .rhythm_handle import RhythmDataManage, Action, RhythmData
+from .rhythm_handle import rhythmDataManage, Action, rhythmData
 from .config import MAX, MIN, CD, LEVEL, rhythm_config
 from enum import Enum
 
@@ -142,7 +142,7 @@ class _Event2(_Event):
         self.other_data = self.rhythm_db.get_rhythm_data(other_id)
 
 
-class BuyEvent(_Event):
+class PlayEvent(_Event):
     """
     买事件，用户增加面包
     """
@@ -162,7 +162,7 @@ class BuyEvent(_Event):
 
     def _pre_event(self, num=None):
         self.action_num = random.randint(MIN.BUY.value, MAX.BUY.value)
-        return super(BuyEvent, self)._pre_event(num)
+        return super(BuyEvent, self)._pre_event(num) 
 
 
 class EatEvent(_Event):
