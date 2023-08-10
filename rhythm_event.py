@@ -104,3 +104,23 @@ def play_event_normal_superb(event: playEvent):
     return append_text
 
 # endregion
+
+# region 单曲特殊事件
+
+# 断网
+
+@probability(0.025, Action.play, priority=5)
+def play_event_lost_connection(event: playEvent):
+    append_text = f"账号登出异常，请15分钟后重试"
+    event.rhythm_db.cd_ban_action(event.user_id, Action.PLAY, 1000)
+    return append_text
+
+# 拼机
+
+@probability(0.2, Action.play, priority=5)
+def play_event_dual(event: playEvent):
+    append_text = f"拼机成功！"
+    event.rhythm_db.cd_refresh(event.user_id, Action.PLAY)
+    return append_text
+
+# endregion
