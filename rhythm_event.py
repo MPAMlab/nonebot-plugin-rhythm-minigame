@@ -82,7 +82,7 @@ def play_event_normal_superb(event: playEvent):
 
     final_rating = 100.5 * 0.8 * play_lev
 
-    if 105.5 < event.user_data.rating / 15 - event.other_data.rating < play_lev * 112
+    if 105.5 < event.user_data.rating / 15 - event.other_data.rating < play_lev * 112:
         return
 
     append_text = f"超常发挥！{event.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
@@ -96,7 +96,7 @@ def play_event_normal_superb(event: playEvent):
 
     final_rating = 100.5 * 0.8 * play_lev
 
-    if event.user_data.rating / 15 - event.other_data.rating > play_lev * 112
+    if event.user_data.rating / 15 - event.other_data.rating > play_lev * 112:
         return
 
     append_text = f"下埋完成！{event.other_name}，得分：{random_rating}，获得Rating：{final_rating}"

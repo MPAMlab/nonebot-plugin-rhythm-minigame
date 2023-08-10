@@ -144,7 +144,7 @@ class _Event2(_Event):
 
 class PlayEvent(_Event):
     """
-    买事件，用户增加面包
+    打歌事件
     """
     event_type = Action.BUY
     _instance = {}
@@ -154,10 +154,14 @@ class PlayEvent(_Event):
     _is_random_global = True
 
     def normal_event(self):
-        new_rhythm_num = self.rhythm_db.add_rhythm(self.user_id, self.action_num)
-        new_rhythm_no = self.rhythm_db.update_no(self.user_id)
-        append_text = f"成功购买了{self.action_num}个{self.thing}w，现在一共拥有{new_rhythm_num}个{self.thing}！您的{self.thing}排名为:{new_rhythm_no}"
-        self.rhythm_db.cd_update_stamp(self.user_id, Action.BUY)
+        random_rating = random.uniform(97.0, 100.4)
+        final_rating = random_rating * 0.8 * play_lev
+
+        if 0 < event.user_data.rating / 15 - event.other_data.rating < play_lev * 105.5:
+            return
+
+        append_text = f"打歌成功！{event.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
+        event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
         return append_text
 
     def _pre_event(self, num=None):
@@ -295,42 +299,3 @@ class RobEvent(_Event2):
             self.rhythm_db.cd_update_stamp(self.user_id, Action.ROB)
             return append_text
 
-
-class GiveEvent(_Event2):
-    """
-    赠送事件，用户1失去面包，用户2获得面包
-    """
-    event_type = Action.GIVE
-    _instance = {}
-    _has_init = {}
-    _public_events = []
-    _is_random = {}
-    _is_random_global = True
-
-    def normal_event(self):
-        new_rhythm_num_given = self.rhythm_db.add_rhythm(self.other_id, self.action_num)
-        new_rhythm_num_user = self.rhythm_db.reduce_rhythm(self.user_id, self.action_num)
-        self.rhythm_db.update_no(self.other_id)
-        self.rhythm_db.update_no(self.user_id)
-
-        append_text = f"成功赠送了{self.action_num}个{self.thing}给{self.other_name}，你现在拥有{new_rhythm_num_user}个{self.thing}！" \
-                      f"{self.other_name}有{new_rhythm_num_given}个{self.thing}！"
-        self.rhythm_db.cd_update_stamp(self.user_id, Action.GIVE)
-        return append_text
-
-    def _pre_event(self, num=None):
-        if self.user_data.rhythm_num < MIN.GIVE.value or (num and self.user_data.rhythm_num < num):
-            append_text = f"你的{self.thing}还不够赠送w，来买一些{self.thing}吧！"
-            return append_text
-
-        self.action_num = random.randint(MIN.GIVE.value, min(MAX.GIVE.value, self.user_data.rhythm_num))
-        pre_res = super(GiveEvent, self)._pre_event(num)
-        if pre_res:  # 有返回值代表事件提前结束
-            return pre_res
-
-        if self.user_id == self.other_id:
-            append_text = f"送给自己肯定是不行的啦！送给我叭！你送了我{self.action_num}个{self.thing}嘿嘿！"
-            self.rhythm_db.reduce_rhythm(self.user_id, self.action_num)
-            self.rhythm_db.update_no(self.user_id)
-            self.rhythm_db.cd_update_stamp(self.user_id, Action.GIVE)
-            return append_text
