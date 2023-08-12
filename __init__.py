@@ -51,9 +51,9 @@ rhythm_b10 = on_command("rhythm_b10", aliases=cmd_b10, priority=5)
 rhythm_help = on_command("rhythm_help", aliases=cmd_help, priority=5)
 
 # 初始化事件
-playEvent.add_events(play_events)
-danEvent.add_events(dan_events)
-fightEvent.add_events(fight_events)
+PlayEvent.add_events(play_events)
+DanEvent.add_events(dan_events)
+FightEvent.add_events(fight_events)
 
 # 设置是否可以指定操作数
 # 例： ”/give @用户 10“即是否可以使用此处的 10
@@ -65,6 +65,7 @@ async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message =
     try:
         user_qq, group_id, name, msg_at, thing = await pre_get_data(event, bot, cmd, cmd_play_ori)
         play_lev = get_num_arg(args.extract_plain_text(), PlayEvent, group_id)
+        ref_min_rating = play_lev * 84
     except ArgsError as e:
         await bot.send(event=event, message=str(e))
         return
@@ -77,7 +78,9 @@ async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message =
         data = rhythmDataManage(group_id).get_rhythm_data(user_qq)
         msg_txt = f"您还得等待{wait_time // 60}分钟才能打歌{thing}"
     elif wait_time < 0:
-        msg_txt = f"你被禁止打歌啦！{(abs(wait_time) + CD.BUY.value) // 60}分钟后才能继续！"
+        msg_txt = f"你被禁止打歌啦！{(abs(wait_time) + CD.PLAY.value) // 60}分钟后才能继续！"
+    elif play_lev > 15 or play_lev < 1:
+        msg_txt = "打歌等级必须在1-15之间！"
     else:
         event_ = PlayEvent(group_id)
         event_.set_user_id(user_qq)
@@ -176,7 +179,7 @@ async def _(event: Event, bot: Bot, cmd: Message = RawCommand()):
 rating+@    查看rating数据
 排行+	    本群ra排行榜top5
 help        你猜你在看什么
-更多详情见本项目地址：
+本项目地址：
 https://github.com/MPAMlab/nonebot-plugin-rhythm-minigame"""
     await bot.send(event=event, message=msg)
 
@@ -310,7 +313,7 @@ async def pre_get_data(event, bot, cmd, cmd_ori):
 
     if (rhythm_config.global_rhythm and group_id in rhythm_config.black_rhythm_groups) or \
             (not rhythm_config.global_rhythm and group_id not in rhythm_config.white_rhythm_groups):
-        await bot.send(event=event, message=f"本群已禁止{thing}店！请联系bot管理员！")
+        await bot.send(event=event, message=f"本群已禁止rhythm-game！请联系bot管理员！")
         raise CommandError
 
     return user_qq, group_id, name, msg_at, thing

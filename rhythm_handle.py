@@ -9,7 +9,7 @@ from functools import wraps
 from inspect import signature
 from pathlib import Path
 from typing import List
-
+from ./_init_.py import play_lev
 from .config import LEVEL
 
 DATABASE = Path() / "data" / "rhythm"
@@ -17,14 +17,12 @@ DATABASE = Path() / "data" / "rhythm"
 
 class Action(Enum):
     ALL = -1
-    BUY = 0
-    EAT = 1
-    ROB = 2
-    GIVE = 3
-    BET = 4
+    PLAY = 0
+    FIGHT = 1
+    DAN = 2
 
 
-rhythmData = namedtuple("rhythmData", ["no", "user_id", "RHYTHM_RATING", "rhythm_eaten", "level"])
+rhythmData = namedtuple("rhythmData", ["no", "user_id", "rhythm_rating", "rhythm_eaten", "level"])
 LogData = namedtuple("LogData", ["user_id", "buy_times", "eat_times", "rob_times", "give_times", "bet_times"])
 
 

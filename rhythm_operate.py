@@ -5,7 +5,7 @@ import random
 from .rhythm_handle import rhythmDataManage, Action, rhythmData
 from .config import MAX, MIN, CD, LEVEL, rhythm_config
 from enum import Enum
-
+from .__init__ import play_lev
 
 def cd_wait_time(group_id, user_id, operate: Action) -> int:
     """获取需要等待的CD秒数，小于0则被ban，大于0则还在冷却，等于0则可操作"""
@@ -146,7 +146,7 @@ class PlayEvent(_Event):
     """
     打歌事件
     """
-    event_type = Action.BUY
+    event_type = Action.PLAY
     _instance = {}
     _has_init = {}
     _public_events = []
@@ -156,12 +156,13 @@ class PlayEvent(_Event):
     def normal_event(self):
         random_rating = random.uniform(97.0, 100.4)
         final_rating = random_rating * 0.8 * play_lev
+        ref_min_rating = play_lev * 84
 
-        if 0 < event.user_data.rating / 15 - event.other_data.rating < play_lev * 105.5:
+        if 0 < self.user_data.rating / 15 - ref_min_rating  < play_lev * 105.5:
             return
 
-        append_text = f"打歌成功！{event.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
-        event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
+        append_text = f"打歌成功！{self.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
+        self.rhythm_db.cd_update_stamp(self.user_id, Action.PLAY)
         return append_text
 
     def _pre_event(self, num=None):
@@ -169,7 +170,7 @@ class PlayEvent(_Event):
         return super(BuyEvent, self)._pre_event(num) 
 
 
-class EatEvent(_Event):
+class DanEvent(_Event):
     """
     吃事件，用户减少面包，增加“已吃面包”数量，在一定值等级会随之提高
     """
@@ -197,7 +198,7 @@ class EatEvent(_Event):
         return super(EatEvent, self)._pre_event(num)
 
 
-class BetEvent(_Event):
+class FightEvent(_Event):
     """
     猜拳事件，由用户选择“石头”“剪刀”“石头”中的一个，bot将会随机生成一个手势
     若用户胜利，用户获得面包，若失败，则丢失面包。
