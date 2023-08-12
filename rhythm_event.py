@@ -115,17 +115,25 @@ def play_event_normal_superb(event: PlayEvent):
 
 # 断网
 
-@probability(0.025, Action.play, priority=5)
+@probability(0.025, Action.PLAY, priority=5)
 def play_event_lost_connection(event: PlayEvent):
     append_text = f"当前使用的账号没有正常登出，请过15分钟后再试"
     event.rhythm_db.cd_ban_action(event.user_id, Action.PLAY, 1000)
     return append_text
 
-# 拼机
+# 拼机（未完成）
 
-@probability(0.2, Action.play, priority=5)
+@probability(0.2, Action.PLAY, priority=5)
 def play_event_dual(event: PlayEvent):
     append_text = f"拼机成功！"
+    event.rhythm_db.cd_refresh(event.user_id, Action.PLAY)
+    return append_text
+
+# 手套破了（未完成）
+
+@probability(0.1, Action.PLAY, priority=5)
+def play_event_glove_broken(event: PlayEvent):
+    append_text = f"手套破了！"
     event.rhythm_db.cd_refresh(event.user_id, Action.PLAY)
     return append_text
 

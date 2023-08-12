@@ -42,9 +42,9 @@ class _Event:
             self.user_id = None
             self.user_data = rhythmData(0, "0", 0, 0, 0)
             self._private_events = []
-            self.thing = rhythm_config.special_thing_group.get(group_id, rhythm_config.rhythm_thing)
-            if isinstance(self.thing, list):
-                self.thing = self.thing[0]
+            #self.thing = rhythm_config.special_thing_group.get(group_id, rhythm_config.rhythm_thing)
+            #if isinstance(self.thing, list):
+            #    self.thing = self.thing[0]
 
     @classmethod
     def add_event(cls, func):
@@ -89,7 +89,7 @@ class _Event:
     def set_user_id(self, user_id: str):
         """设置用户id以及获取用户数据以待判断"""
         self.user_id = user_id
-        self.user_data = self.rhythm_db.get_rhythm_data(self.user_id)
+        self.user_data = self.rhythm_db.get_RHYTHM_DATA(self.user_id)
 
     def execute(self, num=None):
         """事件执行"""
@@ -98,7 +98,7 @@ class _Event:
             return pre_error
 
         return_data = self._special_event()
-        self.rhythm_db.add_user_log(self.user_id, self.event_type)
+        #self.rhythm_db.add_user_log(self.user_id, self.event_type)
         if return_data:
             return return_data
 
@@ -108,11 +108,11 @@ class _Event:
         """正常事件流程 （虚函数）"""
 
     def _pre_event(self, num=None):
-        """预处理事件，提前生成随机值或其它值。 num 为非随机情况下得指定数量值"""
+        """预处理事件，提前生成随机值或其它值。 num 为非随机情况下得指定数量值
         self.thing = rhythm_config.special_thing_group.get(self.group_id, rhythm_config.rhythm_thing)
         if isinstance(self.thing, list):
             self.thing = self.thing[0]
-
+"""
         # 获取操作最大值或者最小值
         max_num = getattr(MAX, self.event_type.name).value
         min_num = getattr(MIN, self.event_type.name).value
@@ -153,15 +153,16 @@ class PlayEvent(_Event):
     _is_random = {}
     _is_random_global = True
 
-    def normal_event(self):
+    def normal_event(self, group_id: str):
+        super().__init__(group_id)
         random_rating = random.uniform(97.0, 100.4)
         final_rating = random_rating * 0.8 * play_lev
         ref_min_rating = play_lev * 84
-        now_rating = self.rhythm_db.add_rhythm(self.user_id, self.action_num)
-        if 0 < self.user_data.rating / 15 - ref_min_rating  < play_lev * 105.5:
+        now_rating = self.rhythm_db.add_rating(self.user_id, self.action_num)
+        if 0 < self.user_data[2] / 15 - ref_min_rating  < play_lev * 105.5:
             return
 
-        append_text = f"打歌成功！{self.other_name}，得分：{random_rating}，获得Rating：{final_rating}，现在总rating：{now_rating}"
+        append_text = f"打歌成功！{self.group_id}，得分：{random_rating}，获得Rating：{final_rating}，现在总rating：{now_rating}"
         self.rhythm_db.cd_update_stamp(self.user_id, Action.PLAY)
         return append_text
 
@@ -172,15 +173,15 @@ class PlayEvent(_Event):
 
 class DanEvent(_Event):
     """
-    吃事件，用户减少面包，增加“已吃面包”数量，在一定值等级会随之提高
+    段位事件（未完成）
     """
-    event_type = Action.EAT
+    event_type = Action.DAN
     _instance = {}
     _has_init = {}
     _public_events = []
     _is_random = {}
     _is_random_global = True
-
+"""
     def normal_event(self):
         now_rhythm = self.rhythm_db.reduce_rhythm(self.user_id, self.action_num)
         eaten_rhythm = self.rhythm_db.add_rhythm(self.user_id, self.action_num, Action.EAT)
@@ -196,80 +197,19 @@ class DanEvent(_Event):
 
         self.action_num = random.randint(MIN.EAT.value, min(MAX.EAT.value, self.user_data.rhythm_num))
         return super(EatEvent, self)._pre_event(num)
+"""
 
-
-class FightEvent(_Event):
+class FightEvent(_Event2):
     """
-    猜拳事件，由用户选择“石头”“剪刀”“石头”中的一个，bot将会随机生成一个手势
-    若用户胜利，用户获得面包，若失败，则丢失面包。
+    友人对战事件（未完成）
     """
-    event_type = Action.BET
+    event_type = Action.FIGHT
     _instance = {}
     _has_init = {}
     _public_events = []
     _is_random = {}
     _is_random_global = True
-
-    class G(Enum):
-        ROCK = 0
-        PAPER = 1
-        SCISSORS = 2
-
-    class RES(Enum):
-        DRAW = 0  # 平局
-        WIN = 1
-        LOST = 2
-
-    def __init__(self, group_id: str):
-        super().__init__(group_id)
-        self.user_gestures = None  # 额外初始化一个手势变量
-
-    def set_user_gestures(self, ges: G):
-        """猜拳，设置用户的手势"""
-        self.user_gestures = ges
-
-    def normal_event(self):
-        if self.outcome == self.RES.WIN:
-            new_rhythm_num_user = self.rhythm_db.add_rhythm(self.user_id, self.action_num)
-            self.rhythm_db.update_no(self.user_id)
-            append_text = f"{self.bot_ges_text}! 呜呜，我输了，给你{self.action_num}个{self.thing}！你现在拥有{new_rhythm_num_user}个{self.thing}！"
-            self.rhythm_db.cd_update_stamp(self.user_id, Action.BET)
-        elif self.outcome == self.RES.DRAW:
-            append_text = f"{self.bot_ges_text}!平局啦！{self.thing}都还给你啦！还可以再来一次w！"
-        else:  # self.outcome == self.RES.LOST
-            new_rhythm_num_user = self.rhythm_db.reduce_rhythm(self.user_id, self.action_num)
-            self.rhythm_db.update_no(self.user_id)
-            append_text = f"{self.bot_ges_text}!嘿嘿，我赢啦！你的{self.action_num}个{self.thing}归我了！你现在拥有{new_rhythm_num_user}个{self.thing}！"
-            self.rhythm_db.cd_update_stamp(self.user_id, Action.BET)
-        return append_text
-
-    def _pre_event(self, num=None):
-        if self.user_data.rhythm_num < MIN.BET.value or (num and self.user_data.rhythm_num < num):
-            append_text = f"你的{self.thing}还不够猜拳w，来买一些{self.thing}吧！"
-            return append_text
-
-        self.bot_ges = self.G(random.randint(0, 2))
-        self.bot_ges_text = ("石头", "布", "剪刀")[self.bot_ges.value]
-        val = self.user_gestures.value - self.bot_ges.value
-        if val == -2 or val == -1:
-            val = 3 + val
-        self.outcome = self.RES(val)
-
-        self.action_num = random.randint(MIN.BET.value, min(MAX.BET.value, self.user_data.rhythm_num))
-        return super(BetEvent, self)._pre_event(num)
-
-
-class RobEvent(_Event2):
-    """
-    抢劫事件，用户1获得面包，用户2减少面包
-    """
-    event_type = Action.ROB
-    _instance = {}
-    _has_init = {}
-    _public_events = []
-    _is_random = {}
-    _is_random_global = True
-
+"""
     def normal_event(self):
         new_rhythm_num = self.rhythm_db.add_rhythm(self.user_id, self.action_num)
         self.rhythm_db.reduce_rhythm(self.other_id, self.action_num)
@@ -299,4 +239,4 @@ class RobEvent(_Event2):
             self.rhythm_db.update_no(self.other_id)
             self.rhythm_db.cd_update_stamp(self.user_id, Action.ROB)
             return append_text
-
+"""

@@ -21,8 +21,8 @@ class Action(Enum):
     DAN = 2
 
 
-rhythmData = namedtuple("rhythmData", ["no", "user_id", "rhythm_rating", "rhythm_eaten", "level"])
-LogData = namedtuple("LogData", ["user_id", "buy_times", "eat_times", "rob_times", "give_times", "bet_times"])
+rhythmData = namedtuple("rhythmData", ["no", "user_id", "OVERALL_RATING", "BEST_ONE", "BEST_TWO", "BEST_THREE", "BEST_FOUR", "BEST_FIVE", "BEST_SIX", "BEST_SEVEN", "BEST_EIGHT", "BEST_NINE", "BEST_TEN"])
+#LogData = namedtuple("LogData", ["user_id", "buy_times", "eat_times", "rob_times", "give_times", "bet_times"])
 
 
 def type_assert(*ty_args, **ty_kwargs):
@@ -190,36 +190,13 @@ class rhythmDataManage:
         self.conn.commit()
 
     @type_assert(object, "user_id", int, Action)
-    def add_rhythm(self, user_id: str, add_num: int, action: Action = Action.BUY) -> int:
-        """添加用户面包数量，可以添加已经吃了的面包数量，返回增加后的数量"""
-        if action == Action.EAT:
-            col_name = self.DATA_COLUMN[1]
-        else:
-            col_name = self.DATA_COLUMN[0]
-        cur = self.conn.cursor()
-        sql = f"select * from RHYTHM_DATA where USERID=?"
-        cur.execute(sql, (user_id,))
-        data = cur.fetchone()
-        if not data:
-            self._create_user(user_id)
-            data = (0, user_id, 0, 0)
-        if col_name == self.DATA_COLUMN[1]:
-            ori_num = data[3]
-        else:
-            ori_num = data[2]
-        new_num = ori_num + add_num
-        sql = f"update RHYTHM_DATA set {col_name}=? where USERID=?"
-        cur.execute(sql, (new_num, user_id))
-        self.conn.commit()
-        return new_num
-
-    @type_assert(object, "user_id", int, Action)
     def add_rating(self, user_id: str, new_rating: int, action: Action = Action.PLAY) -> int:
+        """添加最新打歌rating，判断是否属于b10，如果属于则加入b10，并返回总rating"""
         cur = self.conn.cursor()
         sql = f"select * from RHYTHM_DATA where USERID=?"
         cur.execute(sql, (user_id,))
         rating = cur.fetchone()
-        if not data:
+        if not rating:
             self._create_user(user_id)
             rating = (0, user_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         for rating in rating:
@@ -228,83 +205,11 @@ class rhythmDataManage:
                 rating.append(new_rating)
                 rating.sort(reverse=True)
                 rating.pop()
-                overall_rating = sum(rating)
-                cur.execute("UPDATE RHYTHM_DATA SET BEST_ONE=?, BEST_TWO=?, BEST_THREE=?, BEST_FOUR=?, BEST_FIVE=?, BEST_SIX=?, BEST_SEVEN=?, BEST_EIGHT=?, BEST_NINE=?, BEST_TEN=?", rating)
-                conn.commit()
-                conn.close()
-                return overall_rating  # Return True if the new number is smaller
-        
-        """
-        sql = f"update RHYTHM_DATA set {col_name}=? where USERID=?"
-        cur.execute(sql, (new_num, user_id))
-
-        cur.execute("SELECT number FROM RHYTHM_DATA")
-
-
-        # Check if the new number is smaller than any number in the database
-        for rating in ratings:
-            if new_rating < rating[0]:
-                # Insert the new number into the database
-                ratings.append(new_rating)
-                ratings.sort(reverse=True)
-                ratings.pop()
-                overall_rating = sum(ratings)
-                cur.execute("INSERT INTO RHYTHM_DATA(number) VALUES (?)", (new_rating,))
-                conn.commit()
-                conn.close()
-                return overall_rating  # Return True if the new number is smaller
-
-    
-        # Insert a new number
-        sql_insert = f"INSERT INTO RHYTHM_DATA (BEST_ONE, BEST_TWO, BEST_THREE, BEST_FOUR, BEST_FIVE, BEST_SIX, BEST_SEVEN, BEST_EIGHT, BEST_NINE, BEST_TEN) VALUES (?,?,?,?,?,?,?,?,?,?)"
-        cur.execute(sql_insert, (new_rating,))
-
-        # Check if the new number is greater than the smallest number
-        sql_select = "SELECT * FROM RHYTHM_DATA"
-        cur.execute(sql_select)
-        data = cur.fetchone()
-
-        # Get the smallest number
-        smallest_number = min(data)
-
-        # If the new number is greater than the smallest number, replace it and sort the array
-        if new_number > smallest_number:
-            data = sorted(data)
-            data[0] = new_number
-
-        # Update the table with the modified array
-        sql_update = f"UPDATE RHYTHM_DATA SET BEST_ONE=?, BEST_TWO=?, BEST_THREE=?, ..., BEST_TEN=?"
-        cur.execute(sql_update, tuple(data))
-
-        # Commit the changes and close the connection
-        conn.commit()
-        conn.close()
-"""
-
-    @type_assert(object, "user_id", int, Action)
-    def reduce_rhythm(self, user_id: str, red_num: int, action: Action = Action.BUY) -> int:
-        """减少用户面包数量，可以减少已经吃的数量，返回减少后的数量"""
-        if action == Action.EAT:
-            col_name = self.DATA_COLUMN[1]
-        else:
-            col_name = self.DATA_COLUMN[0]
-        cur = self.conn.cursor()
-        sql = "select * from RHYTHM_DATA where USERID=?"
-        cur.execute(sql, (user_id,))
-        data = cur.fetchone()
-        if not data:
-            self._create_user(user_id)
-            data = (0, user_id, 0, 0)
-        if col_name == "rhythm_EATEN":
-            ori_num = data[3]
-        else:
-            ori_num = data[2]
-        new_num = ori_num - red_num
-        sql = f"update RHYTHM_DATA set {col_name}=? where USERID=?"
-        cur.execute(sql, (new_num, user_id))
+        overall_rating = sum(rating)
+        cur.execute("UPDATE RHYTHM_DATA SET BEST_ONE=?, BEST_TWO=?, BEST_THREE=?, BEST_FOUR=?, BEST_FIVE=?, BEST_SIX=?, BEST_SEVEN=?, BEST_EIGHT=?, BEST_NINE=?, BEST_TEN=?", rating)
         self.conn.commit()
-        return new_num
-
+        return overall_rating
+        
     @type_assert(object, "user_id")
     def update_no(self, user_id: str) -> int:
         """更新用户排名并返回"""
@@ -341,13 +246,13 @@ class rhythmDataManage:
 
     @type_assert(object, "user_id")
     def get_RHYTHM_DATA(self, user_id: str) -> rhythmData:
-        """获取用户面包数据并返回"""
+        """获取用户rating数据并返回"""
         cur = self.conn.cursor()
         cur.execute("select * from RHYTHM_DATA where USERID=?", (user_id,))
         data = cur.fetchone()
         if not data:
             self._create_user(user_id)
-            data = (0, user_id, 0, 0)
+            data = (0, user_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         self.conn.commit()
         return rhythmData(*data, level=data[3] // LEVEL)
 
