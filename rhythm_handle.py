@@ -9,7 +9,6 @@ from functools import wraps
 from inspect import signature
 from pathlib import Path
 from typing import List
-from ./_init_.py import play_lev
 from .config import LEVEL
 
 DATABASE = Path() / "data" / "rhythm"
@@ -53,9 +52,9 @@ def type_assert(*ty_args, **ty_kwargs):
 class rhythmDataManage:
     _instance = {}
     _has_init = {}
-    CD_COLUMN = ("BUY_CD", "EAT_CD", "ROB_CD", "GIVE_CD", "BET_CD")
-    DATA_COLUMN = ("RHYTHM_RATING", "rhythm_EATEN")
-    LOG_COLUMN = ("BUY_TIMES", "EAT_TIMES", "ROB_TIMES", "GIVE_TIMES", "BET_TIMES")
+    CD_COLUMN = ("PLAY_CD", "DAN_CD", "FIGHT_CD")
+    DATA_COLUMN = ("OVERALL_RATING", "BEST_ONE", "BEST_TWO", "BEST_THREE", "BEST_FOUR", "BEST_FIVE", "BEST_SIX", "BEST_SEVEN", "BEST_EIGHT", "BEST_NINE", "BEST_TEN")
+
 
     def __new__(cls, group_id):
         if group_id is None:
@@ -85,25 +84,30 @@ class rhythmDataManage:
     def _create_file(self) -> None:
         """创建数据库文件"""
         c = self.conn.cursor()
-        c.execute('''CREATE TABLE RHYTHM_DATA
-                           (NO            INTEGER PRIMARY KEY UNIQUE,
-                           USERID         TEXT     ,
-                           RHYTHM_RATING      INTEGER  ,
-                           RHYTHM_EATEN    INTEGER  
-                           );''')
-        c.execute('''CREATE TABLE RHYTHM_LOG
-                           (USERID         TEXT     ,
-                           BUY_TIMES      INTEGER  ,
-                           GIVE_TIMES     INTEGER  ,
-                           BET_TIMES      INTEGER  
-                           );''')
-        c.execute('''CREATE TABLE RHYTHM_CD
-                           (USERID        TEXT     ,
-                           BUY_CD         INTEGER  ,
-                           GIVE_CD        INTEGER  ,
-                           BET_CD         INTEGER  
-                           );''')
+        c.execute('''CREATE TABLE RHYTHM_DATA 
+                  (NO INTEGER PRIMARY KEY UNIQUE, 
+                  USERID TEXT , 
+                  OVERALL_RATING INTEGER , 
+                  BEST_ONE INTEGER , 
+                  BEST_TWO INTEGER , 
+                  BEST_THREE INTEGER , 
+                  BEST_FOUR INTEGER , 
+                  BEST_FIVE INTEGER , 
+                  BEST_SIX INTEGER , 
+                  BEST_SEVEN INTEGER , 
+                  BEST_EIGHT INTEGER , 
+                  BEST_NINE INTEGER , 
+                  BEST_TEN INTEGER
+                );''') 
+        c.execute('''CREATE TABLE PLAY_CD 
+                  (USERID TEXT , 
+                  PLAY_CD INTEGER , 
+                  DAN_CD INTEGER , 
+                  FIGHT_CD INTEGER
+                );''') 
         self.conn.commit()
+
+
 
     def _get_id(self) -> int:
         """获取下一个id"""
@@ -122,12 +126,9 @@ class rhythmDataManage:
         """在数据库中创建用户并初始化"""
         new_id = self._get_id()
         c = self.conn.cursor()
-        sql = f"INSERT INTO RHYTHM_DATA (NO,USERID,RHYTHM_RATING,rhythm_EATEN) VALUES (?,?,0,0)"
+        sql = f"INSERT INTO RHYTHM_DATA (NO, USERID, OVERALL_RATING, BEST_ONE, BEST_TWO, BEST_THREE, BEST_FOUR, BEST_FIVE, BEST_SIX, BEST_SEVEN, BEST_EIGHT, BEST_NINE, BEST_TEN) VALUES (?,?,0,0,0,0,0,0,0,0,0,0,0)"
         c.execute(sql, (new_id, user_id))
-        sql = f"INSERT INTO RHYTHM_LOG (USERID,BUY_TIMES,EAT_TIMES,ROB_TIMES,GIVE_TIMES,BET_TIMES)" \
-              f" VALUES (?,0,0,0,0,0)"
-        c.execute(sql, (user_id,))
-        sql = f"INSERT INTO RHYTHM_CD (USERID,BUY_CD,EAT_CD,ROB_CD,GIVE_CD,BET_CD) VALUES (?,0,0,0,0,0)"
+        sql = f"INSERT INTO PLAY_CD (USERID,PLAY_CD,DAN_CD,FIGHT_CD) VALUES (?,0,0,0)"
         c.execute(sql, (user_id,))
         self.conn.commit()
 
@@ -137,12 +138,12 @@ class rhythmDataManage:
         if action == Action.ALL:
             cur = self.conn.cursor()
             for key in self.CD_COLUMN:
-                sql = f"update RHYTHM_CD set {key}=? where USERID=?"
+                sql = f"update PLAY_CD set {key}=? where USERID=?"
                 cur.execute(sql, (1, user_id))
             self.conn.commit()
             return
         op_key = self.CD_COLUMN[action.value]
-        sql = f"update RHYTHM_CD set {op_key}=? where USERID=?"
+        sql = f"update PLAY_CD set {op_key}=? where USERID=?"
         cur = self.conn.cursor()
         cur.execute(sql, (1, user_id))
         self.conn.commit()
@@ -151,7 +152,7 @@ class rhythmDataManage:
     def cd_get_stamp(self, user_id: str, action: Action) -> int:
         """获取用户上次操作时间戳"""
         cur = self.conn.cursor()
-        sql = f"select * from RHYTHM_CD where USERID=?"
+        sql = f"select * from PLAY_CD where USERID=?"
         cur.execute(sql, (user_id,))
         result = cur.fetchone()
         if not result:
@@ -164,7 +165,7 @@ class rhythmDataManage:
     def cd_reduce_action(self, user_id: str, action: Action, reduce_time) -> None:
         """单次剪短cd，单位为秒"""
         op_key = self.CD_COLUMN[action.value]
-        sql = f"update RHYTHM_CD set {op_key}=? where USERID=?"
+        sql = f"update PLAY_CD set {op_key}=? where USERID=?"
         cur = self.conn.cursor()
         cur.execute(sql, (int(time.time()) - reduce_time, user_id))
         self.conn.commit()
@@ -173,7 +174,7 @@ class rhythmDataManage:
     def cd_ban_action(self, user_id: str, action: Action, ban_time) -> None:
         """禁止用户一段时间操作，单次延长cd，单位为秒"""
         op_key = self.CD_COLUMN[action.value]
-        sql = f"update RHYTHM_CD set {op_key}=? where USERID=?"
+        sql = f"update PLAY_CD set {op_key}=? where USERID=?"
         cur = self.conn.cursor()
         cur.execute(sql, (int(time.time()) + ban_time, user_id))
         self.conn.commit()
@@ -182,7 +183,7 @@ class rhythmDataManage:
     def cd_update_stamp(self, user_id: str, action: Action) -> None:
         """重置用户操作CD(重新开始记录冷却)"""
         op_key = self.CD_COLUMN[action.value]
-        sql = f"update RHYTHM_CD set {op_key}=? where USERID=?"
+        sql = f"update PLAY_CD set {op_key}=? where USERID=?"
         stamp = int(time.time())
         cur = self.conn.cursor()
         cur.execute(sql, (stamp, user_id))
@@ -211,6 +212,74 @@ class rhythmDataManage:
         cur.execute(sql, (new_num, user_id))
         self.conn.commit()
         return new_num
+
+    @type_assert(object, "user_id", int, Action)
+    def add_rating(self, user_id: str, new_rating: int, action: Action = Action.PLAY) -> int:
+        cur = self.conn.cursor()
+        sql = f"select * from RHYTHM_DATA where USERID=?"
+        cur.execute(sql, (user_id,))
+        rating = cur.fetchone()
+        if not data:
+            self._create_user(user_id)
+            rating = (0, user_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        for rating in rating:
+            if new_rating < rating[0]:
+                # Insert the new number into the database
+                rating.append(new_rating)
+                rating.sort(reverse=True)
+                rating.pop()
+                overall_rating = sum(rating)
+                cur.execute("UPDATE RHYTHM_DATA SET BEST_ONE=?, BEST_TWO=?, BEST_THREE=?, BEST_FOUR=?, BEST_FIVE=?, BEST_SIX=?, BEST_SEVEN=?, BEST_EIGHT=?, BEST_NINE=?, BEST_TEN=?", rating)
+                conn.commit()
+                conn.close()
+                return overall_rating  # Return True if the new number is smaller
+        
+        """
+        sql = f"update RHYTHM_DATA set {col_name}=? where USERID=?"
+        cur.execute(sql, (new_num, user_id))
+
+        cur.execute("SELECT number FROM RHYTHM_DATA")
+
+
+        # Check if the new number is smaller than any number in the database
+        for rating in ratings:
+            if new_rating < rating[0]:
+                # Insert the new number into the database
+                ratings.append(new_rating)
+                ratings.sort(reverse=True)
+                ratings.pop()
+                overall_rating = sum(ratings)
+                cur.execute("INSERT INTO RHYTHM_DATA(number) VALUES (?)", (new_rating,))
+                conn.commit()
+                conn.close()
+                return overall_rating  # Return True if the new number is smaller
+
+    
+        # Insert a new number
+        sql_insert = f"INSERT INTO RHYTHM_DATA (BEST_ONE, BEST_TWO, BEST_THREE, BEST_FOUR, BEST_FIVE, BEST_SIX, BEST_SEVEN, BEST_EIGHT, BEST_NINE, BEST_TEN) VALUES (?,?,?,?,?,?,?,?,?,?)"
+        cur.execute(sql_insert, (new_rating,))
+
+        # Check if the new number is greater than the smallest number
+        sql_select = "SELECT * FROM RHYTHM_DATA"
+        cur.execute(sql_select)
+        data = cur.fetchone()
+
+        # Get the smallest number
+        smallest_number = min(data)
+
+        # If the new number is greater than the smallest number, replace it and sort the array
+        if new_number > smallest_number:
+            data = sorted(data)
+            data[0] = new_number
+
+        # Update the table with the modified array
+        sql_update = f"UPDATE RHYTHM_DATA SET BEST_ONE=?, BEST_TWO=?, BEST_THREE=?, ..., BEST_TEN=?"
+        cur.execute(sql_update, tuple(data))
+
+        # Commit the changes and close the connection
+        conn.commit()
+        conn.close()
+"""
 
     @type_assert(object, "user_id", int, Action)
     def reduce_rhythm(self, user_id: str, red_num: int, action: Action = Action.BUY) -> int:
@@ -289,53 +358,6 @@ class rhythmDataManage:
         data = cur.fetchall()
         self.conn.commit()
         return [rhythmData(*item, level=item[3] // LEVEL) for item in data]
-
-    @type_assert(object, "user_id", Action)
-    def add_user_log(self, user_id: str, action: Action) -> int:
-        """记录用户操作次数递增1并返回"""
-        op_key = self.LOG_COLUMN[action.value]
-        cur = self.conn.cursor()
-        cur.execute("select * from RHYTHM_LOG where USERID=?", (user_id,))
-        data = cur.fetchone()
-        log_times = data[action.value + 1]
-        log_times += 1
-        cur.execute(f"update RHYTHM_LOG set {op_key}=? where USERID=?", (log_times, user_id))
-        self.conn.commit()
-        return log_times
-
-    @type_assert(object, "user_id", Action)
-    def reduce_user_log(self, user_id: str, action: Action) -> int:
-        """记录用户操作次数递减1并返回"""
-        op_key = self.LOG_COLUMN[action.value]
-        cur = self.conn.cursor()
-        cur.execute("select * from RHYTHM_LOG where USERID=?", (user_id,))
-        data = cur.fetchone()
-        log_times = data[action.value + 1]
-        log_times -= 1
-        cur.execute(f"update RHYTHM_LOG set {op_key}=? where USERID=?", (log_times, user_id))
-        self.conn.commit()
-        return log_times
-
-    @type_assert(object, "user_id")
-    def get_log_data(self, user_id: str) -> LogData:
-        """获取用户操作次数记录数据"""
-        cur = self.conn.cursor()
-        cur.execute(f"select * from RHYTHM_LOG where USERID=?", (user_id,))
-        data = cur.fetchone()
-        self.conn.commit()
-        return LogData(*data)
-
-    @type_assert(object, Action)
-    def get_action_log(self, action: Action) -> LogData:
-        """获取某个操作次数最多用户的数据"""
-        col = self.LOG_COLUMN[action.value]
-        cur = self.conn.cursor()
-        sql = f"SELECT * FROM RHYTHM_LOG WHERE {col}= (SELECT MAX({col}) FROM RHYTHM_LOG) LIMIT 1;"
-        cur.execute(sql)
-        data = cur.fetchone()
-        self.conn.commit()
-        return LogData(*data)
-
 
 if __name__ == "__main__":
     DATABASE = Path() / ".." / ".." / ".." / "data" / "rhythm"

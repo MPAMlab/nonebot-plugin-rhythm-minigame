@@ -5,7 +5,7 @@ import random
 from .rhythm_handle import rhythmDataManage, Action, rhythmData
 from .config import MAX, MIN, CD, LEVEL, rhythm_config
 from enum import Enum
-from .__init__ import play_lev
+from .__init__ import play_lev 
 
 def cd_wait_time(group_id, user_id, operate: Action) -> int:
     """获取需要等待的CD秒数，小于0则被ban，大于0则还在冷却，等于0则可操作"""
@@ -157,11 +157,11 @@ class PlayEvent(_Event):
         random_rating = random.uniform(97.0, 100.4)
         final_rating = random_rating * 0.8 * play_lev
         ref_min_rating = play_lev * 84
-
+        now_rating = self.rhythm_db.add_rhythm(self.user_id, self.action_num)
         if 0 < self.user_data.rating / 15 - ref_min_rating  < play_lev * 105.5:
             return
 
-        append_text = f"打歌成功！{self.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
+        append_text = f"打歌成功！{self.other_name}，得分：{random_rating}，获得Rating：{final_rating}，现在总rating：{now_rating}"
         self.rhythm_db.cd_update_stamp(self.user_id, Action.PLAY)
         return append_text
 

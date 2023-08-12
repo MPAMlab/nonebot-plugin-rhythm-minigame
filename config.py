@@ -22,12 +22,13 @@ class Config(BaseSettings, extra=Extra.ignore):
     cd_dan: int = 82800
 
     """操作随机值上限"""
-    max_lev: int = 15
+    max_play: float = 15.0
+    max_fight: float = 15.0
  
 
     """操作随机值下限"""
-    min_lev: int = 1
-
+    min_play: float = 1.0
+    min_fight: float = 1.0
 
     """设置是否操作值都由随机值决定"""
     is_random_play: bool = True
@@ -39,10 +40,6 @@ class Config(BaseSettings, extra=Extra.ignore):
 
 global_config = get_driver().config
 rhythm_config = Config(**global_config.dict())  # 载入配置
-
-
-LEVEL = rhythm_config.level_rhythm_num
-
 
 class CD(Enum):
     """操作冷却（单位：秒）"""
@@ -74,8 +71,9 @@ def random_config():
     for event_, setting in zip(events, global_settings):
         if not setting:
             event_.set_random_global(False)
-
+"""
     for event_, setting in zip(events, special_settings):
         if setting:
             for group_id in setting.keys():
                 event_(group_id).set_random(setting[group_id])
+"""

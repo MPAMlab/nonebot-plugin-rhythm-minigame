@@ -63,6 +63,7 @@ def play_event_not_qualified_lucky(event: PlayEvent):
     event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
     return append_text
 
+"""
 # 普通打
 
 @probability(0.8, Action.PLAY, priority=5)
@@ -77,6 +78,7 @@ def play_event_normal(event: PlayEvent):
     append_text = f"打歌成功！{event.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
     event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
     return append_text
+"""
 
 # 超常发挥
 
@@ -115,7 +117,7 @@ def play_event_normal_superb(event: PlayEvent):
 
 @probability(0.025, Action.play, priority=5)
 def play_event_lost_connection(event: PlayEvent):
-    append_text = f"账号登出异常，请15分钟后重试"
+    append_text = f"当前使用的账号没有正常登出，请过15分钟后再试"
     event.rhythm_db.cd_ban_action(event.user_id, Action.PLAY, 1000)
     return append_text
 
