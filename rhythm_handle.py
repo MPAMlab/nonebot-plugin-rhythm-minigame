@@ -9,7 +9,7 @@ from functools import wraps
 from inspect import signature
 from pathlib import Path
 from typing import List
-from .config import LEVEL
+#from .config import LEVEL
 
 DATABASE = Path() / "data" / "rhythm"
 

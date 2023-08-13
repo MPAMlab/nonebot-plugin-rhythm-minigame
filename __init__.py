@@ -13,7 +13,7 @@ from nonebot.exception import ActionFailed
 from .rhythm_handle import rhythmDataManage, Action
 from .rhythm_operate import *
 from .rhythm_event import play_events, fight_events, dan_events
-from .config import LEVEL, random_config, rhythm_config
+from .config import random_config, rhythm_config
 
 driver = get_driver()
 
@@ -33,7 +33,9 @@ cmd_rank = cmd_rank_ori.copy()
 cmd_b10 = cmd_b10_ori.copy()
 cmd_help = cmd_help_ori.copy()
 
+"""
 # 进行添加，拓展触发指令
+
 for things in chain(rhythm_config.special_thing_group.values(), (rhythm_config.rhythm_thing,)):
     if isinstance(things, str):
         things = [things]
@@ -43,11 +45,12 @@ for things in chain(rhythm_config.special_thing_group.values(), (rhythm_config.r
         cmd_dan.add(f"段{thing_}")
         cmd_b10.add(f"b10{thing_}")
         cmd_help.add(f"{thing_}帮助")
-
+"""
 rhythm_play = on_command("rhythm_play", aliases=cmd_play, priority=5)
 rhythm_fight = on_command("rhythm_fight", aliases=cmd_fight, priority=5)
 rhythm_dan = on_command("rhythm_dan", aliases=cmd_dan, priority=5)
 rhythm_b10 = on_command("rhythm_b10", aliases=cmd_b10, priority=5)
+rhythm_rank = on_command("rhythm_rank", aliases=cmd_rank, priority=5)
 rhythm_help = on_command("rhythm_help", aliases=cmd_help, priority=5)
 
 # 初始化事件
@@ -63,7 +66,7 @@ random_config()
 @rhythm_play.handle()
 async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message = RawCommand()):
     try:
-        user_qq, group_id, name, msg_at, thing = await pre_get_data(event, bot, cmd, cmd_play_ori)
+        user_qq, group_id, name, msg_at = await pre_get_data(event, bot, cmd, cmd_play_ori)
         play_lev = get_num_arg(args.extract_plain_text(), PlayEvent, group_id)
 
     except ArgsError as e:
@@ -75,8 +78,8 @@ async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message =
     wait_time = cd_wait_time(group_id, user_qq, Action.PLAY)
     # 可见cd_wait_time函数的注释
     if wait_time > 0:
-        data = rhythmDataManage(group_id).get_rhythm_data(user_qq)
-        msg_txt = f"您还得等待{wait_time // 60}分钟才能打歌{thing}"
+        data = rhythmDataManage(group_id).get_RHYTHM_DATA(user_qq)
+        msg_txt = f"您还得等待{wait_time // 60}分钟才能打歌"
     elif wait_time < 0:
         msg_txt = f"你被禁止打歌啦！{(abs(wait_time) + CD.PLAY.value) // 60}分钟后才能继续！"
     elif play_lev > 15 or play_lev < 1:
@@ -89,7 +92,7 @@ async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message =
     res_msg = msg_at + Message(msg_txt)
     await bot.send(event=event, message=res_msg)
 
-
+"""
 @rhythm_rob.handle()
 async def _(bot: Bot, event: Event, args: Message = CommandArg(), cmd: Message = RawCommand()):
     try:
@@ -141,12 +144,12 @@ async def _(bot: Bot, event: Event, args: Message = CommandArg(), cmd: Message =
 
     res_msg = msg_at + msg_txt
     await bot.send(event=event, message=res_msg)
+"""
 
-
-@rhythm_check.handle()
+@rhythm_b10.handle()
 async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message = RawCommand()):
     try:
-        user_qq, group_id, name, msg_at, thing = await pre_get_data(event, bot, cmd, cmd_check_ori)
+        user_qq, group_id, name, msg_at = await pre_get_data(event, bot, cmd, cmd_b10_ori)
     except CommandError:
         return
 
@@ -155,19 +158,19 @@ async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message =
         if arg.type == "at":
             checked_qq = arg.data.get("qq", "")
     if checked_qq == user_qq:
-        user_data = rhythmDataManage(group_id).get_rhythm_data(user_qq)
-        msg = f"你现在B10 rating{user_data.OVERALL_RATING}个{thing}，等级为Lv.{user_data.level}，排名为{user_data.no}！"
+        user_data = rhythmDataManage(group_id).get_RHYTHM_DATA(user_qq)
+        msg = f"你现在B10 rating{user_data.OVERALL_RATING}，分别为{user_data.BEST_ONE}，{user_data.BEST_TWO}，{user_data.BEST_THREE}，{user_data.BEST_FOUR}，{user_data.BEST_FIVE}，{user_data.BEST_SIX}，{user_data.BEST_SEVEN}，{user_data.BEST_EIGHT}，{user_data.BEST_NINE}, {user_data.BEST_TEN}排名为{user_data.no}！"
     else:
         checked_name = await get_nickname(bot, checked_qq, group_id)
-        checked_data = rhythmDataManage(group_id).get_rhythm_data(checked_qq)
-        msg = f"{checked_name} 现在拥有{checked_data.rhythm_num}个{thing}，等级为Lv.{checked_data.level}，排名为{checked_data.no}！"
+        checked_data = rhythmDataManage(group_id).get_RHYTHM_DATA(checked_qq)
+        msg = f"{checked_name} 现在B10 rating{checked_data.OVERALL_RATING}，分别为{checked_data.BEST_ONE}，{checked_data.BEST_TWO}，{checked_data.BEST_THREE}，{checked_data.BEST_FOUR}，{checked_data.BEST_FIVE}，{checked_data.BEST_SIX}，{checked_data.BEST_SEVEN}，{checked_data.BEST_EIGHT}，{checked_data.BEST_NINE}, {checked_data.BEST_TEN}排名为{checked_data.no}！"
 
     await bot.send(event=event, message=msg_at + msg)
 
 @rhythm_help.handle()
 async def _(event: Event, bot: Bot, cmd: Message = RawCommand()):
     try:
-        user_qq, group_id, name, msg_at, thing = await pre_get_data(event, bot, cmd, cmd_help_ori)
+        user_qq, group_id, name, msg_at = await pre_get_data(event, bot, cmd, cmd_help_ori)
     except CommandError:
         return
 
@@ -176,7 +179,7 @@ async def _(event: Event, bot: Bot, cmd: Message = RawCommand()):
 打歌+级别  	打歌，级别为纯数字（1-15）
 段位+级别  	打段位，级别为（一段-十段-皆传）
 对战  	打好友对战
-rating+@    查看rating数据
+b10+@    查看rating数据
 排行+	    本群ra排行榜top5
 help        你猜你在看什么
 本项目地址：
@@ -184,10 +187,10 @@ https://github.com/MPAMlab/nonebot-plugin-rhythm-minigame"""
     await bot.send(event=event, message=msg)
 
 
-@rhythm_top.handle()
+@rhythm_rank.handle()
 async def _(bot: Bot, event: Event, args: Message = CommandArg(), cmd: Message = RawCommand()):
     try:
-        user_qq, group_id, name, msg_at, thing = await pre_get_data(event, bot, cmd, cmd_top_ori)
+        user_qq, group_id, name, msg_at = await pre_get_data(event, bot, cmd, cmd_top_ori)
     except CommandError:
         return
     args_list = args.extract_plain_text().strip().split()
@@ -200,7 +203,7 @@ async def _(bot: Bot, event: Event, args: Message = CommandArg(), cmd: Message =
         if int(args_list[0]) > 10 or int(args_list[0]) < 1:
             await bot.send(event=event, message="超出范围了！")
             return
-        msg = await get_group_top(bot, group_id, thing, end=int(args_list[0]))
+        msg = await get_group_top(bot, group_id, end=int(args_list[0]))
     elif len(args_list) == 2:
         # 指定查看排行榜区间 start - end
         end = int(args_list[1])
@@ -208,9 +211,9 @@ async def _(bot: Bot, event: Event, args: Message = CommandArg(), cmd: Message =
         if end - start >= 10 or start > end or start < 1:
             await bot.send(event=event, message="超出范围了！")
             return
-        msg = await get_group_top(bot, group_id, thing, start=start, end=end)
+        msg = await get_group_top(bot, group_id, start=start, end=end)
     elif len(args_list) == 0:
-        msg = await get_group_top(bot, group_id, thing)
+        msg = await get_group_top(bot, group_id)
     else:
         await bot.send(event=event, message="参数非法！")
         return
@@ -234,7 +237,7 @@ async def get_group_id(session_id):
         return group_id
 
 
-async def get_group_top(bot: Bot, group_id, thing, start=1, end=5) -> Message:
+async def get_group_top(bot: Bot, group_id, start=1, end=5) -> Message:
     """获取群内（或全局）排行榜"""
     if group_id == "global":
         group_member_list = []
@@ -244,13 +247,13 @@ async def get_group_top(bot: Bot, group_id, thing, start=1, end=5) -> Message:
     user_id_list = {info['user_id'] for info in group_member_list}
     all_data = rhythmDataManage(group_id).get_all_data()
     num = 0
-    append_text = f"🍞本群{thing}排行top！🍞\n"
+    append_text = f"Rating排行top！"
     for data in all_data:
         if int(data.user_id) in user_id_list or group_id == "global":
             num += 1
             if start <= num <= end:
                 name = await get_nickname(bot, data.user_id, group_id)
-                append_text += f"top{num} : {name} Lv.{data.rhythm_eaten // LEVEL}，拥有{thing}{data.rhythm_num}个\n"
+                append_text += f"top{num} : {name} Rating {data.OVERALL_RATING}\n"
             if num > end:
                 break
 

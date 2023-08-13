@@ -6,8 +6,8 @@ from datetime import datetime
 
 from .rhythm_handle import Action
 from .rhythm_operate import PlayEvent, DanEvent, FightEvent, _Event
-from .config import MIN, MAX, LEVEL, rhythm_config
-from .__init__ import play_lev
+from .config import MIN, MAX, rhythm_config
+#from .__init__ import play_lev
 
 play_events = []
 dan_events = []
@@ -42,10 +42,10 @@ def play_event_not_qualified(event: PlayEvent):
     random_rating = random.randint(40, 94)
     final_rating = random_rating * 0.8 
     ref_min_rating = play_lev * 84
-    if event.user_data.rating / 15 < ref_min_rating:
+    if event.user_data.OVERALL_RATING / 15 < ref_min_rating:
         return
 
-    append_text = f"越级失败！{event.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
+    append_text = f"越级失败！{event.group_id}，得分：{random_rating}，获得Rating：{final_rating}"
     event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
     return append_text
 
@@ -56,7 +56,7 @@ def play_event_not_qualified_lucky(event: PlayEvent):
     final_rating = 100.5 * 0.8 * play_lev
     ref_min_rating = play_lev * 84
 
-    if event.user_data.rating / 15 < ref_min_rating:
+    if event.user_data.OVERALL_RATING / 15 < ref_min_rating:
         return
 
     append_text = f"越级成功！{event.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
@@ -98,7 +98,7 @@ def play_event_normal_superb(event: PlayEvent):
 # 下埋
 
 @probability(0.1, Action.PLAY, priority=5)
-def play_event_normal_superb(event: PlayEvent):
+def play_event_overdone(event: PlayEvent):
 
     final_rating = 100.5 * 0.8 * play_lev
     ref_min_rating = play_lev * 84

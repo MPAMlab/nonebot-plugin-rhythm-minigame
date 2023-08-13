@@ -3,9 +3,9 @@
 import time
 import random
 from .rhythm_handle import rhythmDataManage, Action, rhythmData
-from .config import MAX, MIN, CD, LEVEL, rhythm_config
+from .config import MAX, MIN, CD, rhythm_config
 from enum import Enum
-from .__init__ import play_lev 
+#from .__init__ import play_lev 
 
 def cd_wait_time(group_id, user_id, operate: Action) -> int:
     """获取需要等待的CD秒数，小于0则被ban，大于0则还在冷却，等于0则可操作"""
@@ -40,7 +40,7 @@ class _Event:
             self.group_id = group_id
             self.rhythm_db = rhythmDataManage(group_id)
             self.user_id = None
-            self.user_data = rhythmData(0, "0", 0, 0, 0)
+            self.user_data = rhythmData(0, "0", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
             self._private_events = []
             #self.thing = rhythm_config.special_thing_group.get(group_id, rhythm_config.rhythm_thing)
             #if isinstance(self.thing, list):
@@ -133,7 +133,7 @@ class _Event2(_Event):
         super().__init__(group_id)
         self.other_id = None
         self.other_name = None
-        self.other_data = rhythmData(0, "0", 0, 0, 0)
+        self.other_data = rhythmData(0, "0", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
     def set_other_id(self, other_id: str, other_name: str):
         """设置第二个用户id 通常为”被操作“的用户"""
@@ -153,13 +153,18 @@ class PlayEvent(_Event):
     _is_random = {}
     _is_random_global = True
 
-    def normal_event(self, group_id: str):
+    def normal_event(self, group_id: str, play_lev: str):
         super().__init__(group_id)
+        try:
+            play_level = float(play_lev)
+        except ValueError:
+            return
+        super().__init__(play_level) # type: ignore
         random_rating = random.uniform(97.0, 100.4)
-        final_rating = random_rating * 0.8 * play_lev
-        ref_min_rating = play_lev * 84
+        final_rating = random_rating * 0.8 * play_level
+        ref_min_rating = play_level * 84
         now_rating = self.rhythm_db.add_rating(self.user_id, self.action_num)
-        if 0 < self.user_data[2] / 15 - ref_min_rating  < play_lev * 105.5:
+        if 0 < self.user_data[2] / 15 - ref_min_rating  < play_level * 105.5:
             return
 
         append_text = f"打歌成功！{self.group_id}，得分：{random_rating}，获得Rating：{final_rating}，现在总rating：{now_rating}"
