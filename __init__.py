@@ -10,7 +10,7 @@ from nonebot.params import CommandArg, RawCommand
 from nonebot.adapters.onebot.v11 import Bot, Event, Message
 from nonebot.exception import ActionFailed
 
-from .rhythm_handle import RhythmDataManage, Action
+from .rhythm_handle import rhythmDataManage, Action
 from .rhythm_operate import *
 from .rhythm_event import play_events, fight_events, dan_events
 from .config import LEVEL, random_config, rhythm_config
@@ -156,7 +156,7 @@ async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message =
             checked_qq = arg.data.get("qq", "")
     if checked_qq == user_qq:
         user_data = rhythmDataManage(group_id).get_rhythm_data(user_qq)
-        msg = f"你现在拥有{user_data.rhythm_num}个{thing}，等级为Lv.{user_data.level}，排名为{user_data.no}！"
+        msg = f"你现在B10 rating{user_data.OVERALL_RATING}个{thing}，等级为Lv.{user_data.level}，排名为{user_data.no}！"
     else:
         checked_name = await get_nickname(bot, checked_qq, group_id)
         checked_data = rhythmDataManage(group_id).get_rhythm_data(checked_qq)
@@ -171,7 +171,7 @@ async def _(event: Event, bot: Bot, cmd: Message = RawCommand()):
     except CommandError:
         return
 
-    msg = f"""       🍞商店使用说明🍞
+    msg = f"""       rhythm-minigame 使用说明
 指令	        说明
 打歌+级别  	打歌，级别为纯数字（1-15）
 段位+级别  	打段位，级别为（一段-十段-皆传）
@@ -299,6 +299,7 @@ async def pre_get_data(event, bot, cmd, cmd_ori):
     else:
         msg_at = Message("@" + name)  # at不生效，为纯文本
 
+    """  
     things_ = rhythm_config.special_thing_group.get(group_id, rhythm_config.rhythm_thing)
 
     if isinstance(things_, list):
@@ -310,13 +311,13 @@ async def pre_get_data(event, bot, cmd, cmd_ori):
         if not cmd[1:] in cmd_ori and things_ not in cmd:
             raise CommandError
         thing = things_
-
+    """
     if (rhythm_config.global_rhythm and group_id in rhythm_config.black_rhythm_groups) or \
             (not rhythm_config.global_rhythm and group_id not in rhythm_config.white_rhythm_groups):
         await bot.send(event=event, message=f"本群已禁止rhythm-game！请联系bot管理员！")
         raise CommandError
 
-    return user_qq, group_id, name, msg_at, thing
+    return user_qq, group_id, name, msg_at
 
 
 class ArgsError(ValueError):

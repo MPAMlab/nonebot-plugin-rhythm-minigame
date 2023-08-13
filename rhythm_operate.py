@@ -139,7 +139,7 @@ class _Event2(_Event):
         """设置第二个用户id 通常为”被操作“的用户"""
         self.other_id = other_id
         self.other_name = other_name
-        self.other_data = self.rhythm_db.get_rhythm_data(other_id)
+        self.other_data = self.rhythm_db.get_RHYTHM_DATA(other_id)
 
 
 class PlayEvent(_Event):
@@ -167,8 +167,8 @@ class PlayEvent(_Event):
         return append_text
 
     def _pre_event(self, num=None):
-        self.action_num = random.randint(MIN.BUY.value, MAX.BUY.value)
-        return super(BuyEvent, self)._pre_event(num) 
+        self.action_num = random.randint(MIN.PLAY.value, MAX.PLAY.value)
+        return super(PlayEvent, self)._pre_event(num) 
 
 
 class DanEvent(_Event):
