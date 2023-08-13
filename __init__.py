@@ -68,7 +68,7 @@ async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message =
     try:
         user_qq, group_id, name, msg_at = await pre_get_data(event, bot, cmd, cmd_play_ori)
         play_lev = get_num_arg(args.extract_plain_text(), PlayEvent, group_id)
-
+        play_level = float(play_lev)
     except ArgsError as e:
         await bot.send(event=event, message=str(e))
         return

@@ -7,7 +7,7 @@ from datetime import datetime
 from .rhythm_handle import Action
 from .rhythm_operate import PlayEvent, DanEvent, FightEvent, _Event
 from .config import MIN, MAX, rhythm_config
-#from .__init__ import play_lev
+from .__init__ import play_lev
 
 play_events = []
 dan_events = []
@@ -39,6 +39,8 @@ def probability(value, action: Action, *, priority: int = 5, group_id_list: list
 # 越级
 @probability(0.9, Action.PLAY, priority=5)
 def play_event_not_qualified(event: PlayEvent):
+    #super().__init__(play_lev)
+
     random_rating = random.randint(40, 94)
     final_rating = random_rating * 0.8 
     ref_min_rating = play_lev * 84
@@ -59,7 +61,7 @@ def play_event_not_qualified_lucky(event: PlayEvent):
     if event.user_data.OVERALL_RATING / 15 < ref_min_rating:
         return
 
-    append_text = f"越级成功！{event.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
+    append_text = f"越级成功！{event.group_id}，得分：{random_rating}，获得Rating：{final_rating}"
     event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
     return append_text
 
@@ -72,10 +74,10 @@ def play_event_normal(event: PlayEvent):
     final_rating = random_rating * 0.8 * play_lev
     ref_min_rating = play_lev * 84
 
-    if 0 < event.user_data.rating / 15 - ref_min_rating < play_lev * 105.5:
+    if 0 < event.user_data.OVERALL_RATING / 15 - ref_min_rating < play_lev * 105.5:
         return
 
-    append_text = f"打歌成功！{event.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
+    append_text = f"打歌成功！{event.group_id}，得分：{random_rating}，获得Rating：{final_rating}"
     event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
     return append_text
 """
@@ -88,10 +90,10 @@ def play_event_normal_superb(event: PlayEvent):
     final_rating = 100.5 * 0.8 * play_lev
     ref_min_rating = play_lev * 84
 
-    if 105.5 < event.user_data.rating / 15 - ref_min_rating < play_lev * 112:
+    if 105.5 < event.user_data.OVERALL_RATING / 15 - ref_min_rating < play_lev * 112:
         return
 
-    append_text = f"超常发挥！{event.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
+    append_text = f"超常发挥！{event.group_id}，得分：{random_rating}，获得Rating：{final_rating}"
     event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
     return append_text
 
@@ -102,10 +104,10 @@ def play_event_overdone(event: PlayEvent):
 
     final_rating = 100.5 * 0.8 * play_lev
     ref_min_rating = play_lev * 84
-    if event.user_data.rating / 15 - ref_min_rating > play_lev * 112:
+    if event.user_data.OVERALL_RATING / 15 - ref_min_rating > play_lev * 112:
         return
 
-    append_text = f"下埋完成！{event.other_name}，得分：{random_rating}，获得Rating：{final_rating}"
+    append_text = f"下埋完成！{event.group_id}，得分：{random_rating}，获得Rating：{final_rating}"
     event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
     return append_text
 
