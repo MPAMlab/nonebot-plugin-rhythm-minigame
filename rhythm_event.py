@@ -7,7 +7,7 @@ from datetime import datetime
 from .rhythm_handle import Action
 from .rhythm_operate import PlayEvent, DanEvent, FightEvent, _Event
 from .config import MIN, MAX, rhythm_config
-from .__init__ import play_lev
+#from .__init__ import play_lev
 
 play_events = []
 dan_events = []

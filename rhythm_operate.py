@@ -123,7 +123,7 @@ class _Event:
                 return
             else:
                 return "数量和限制不符！"
-        # self.action_num = random.randint(min_num, min(max_num, self.user_data.rhythm_num))
+        #self.action_num = random.uniform(min_num, min(max_num, self.user_data.))
 
 
 class _Event2(_Event):
@@ -155,11 +155,11 @@ class PlayEvent(_Event):
 
     def normal_event(self, group_id: str, play_lev: str):
         super().__init__(group_id)
-        try:
-            play_level = float(play_lev)
-        except ValueError:
-            return
-        super().__init__(play_level) # type: ignore
+ #       try:
+        play_level = float(play_lev)
+ #       except ValueError:
+ #           return
+        #super().__init__(play_level) # type: ignore
         random_rating = random.uniform(97.0, 100.4)
         final_rating = random_rating * 0.8 * play_level
         ref_min_rating = play_level * 84
@@ -172,7 +172,7 @@ class PlayEvent(_Event):
         return append_text
 
     def _pre_event(self, num=None):
-        self.action_num = random.randint(MIN.PLAY.value, MAX.PLAY.value)
+        self.action_num = random.uniform(MIN.PLAY.value, MAX.PLAY.value)
         return super(PlayEvent, self)._pre_event(num) 
 
 

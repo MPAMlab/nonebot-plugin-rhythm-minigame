@@ -22,13 +22,13 @@ class Config(BaseSettings, extra=Extra.ignore):
     cd_dan: int = 82800
 
     """操作随机值上限"""
-    max_play: float = 15.0
-    max_fight: float = 15.0
+    max_play: float = 15.000
+    max_fight: float = 15.000
  
 
     """操作随机值下限"""
-    min_play: float = 1.0
-    min_fight: float = 1.0
+    min_play: float = 1.000
+    min_fight: float = 1.000
 
     """设置是否操作值都由随机值决定"""
     is_random_play: bool = True
