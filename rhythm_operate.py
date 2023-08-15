@@ -141,7 +141,23 @@ class _Event2(_Event):
         self.other_name = other_name
         self.other_data = self.rhythm_db.get_RHYTHM_DATA(other_id)
 
-
+# 可能要添加新 class：PlayEventNormal, PlayEventUp, PlayEventDown，分别添加判断，按照条件判断是否触发特殊事件（以下分别为：普通、越级、下埋）
+"""
+class PlayEventNormal(_Event):
+    
+    event_type = Action.PLAYNORMAL
+    _instance = {}
+    _has_init = {}
+    _public_events = []
+    _is_random = {}
+    _is_random_global = True
+    # if 0 < self.user_data[2] / 15 - ref_min_rating and self.user_data[2] / 15 - ref_min_rating < play_level * 105.5:
+    #    
+    # if event.user_data.self.user_data[2] / 15 < ref_min_rating:
+    #
+    # if event.user_data.self.user_data[2] / 15 - ref_min_rating > play_lev * 112:
+    #
+"""
 class PlayEvent(_Event):
     """
     打歌事件
@@ -154,6 +170,7 @@ class PlayEvent(_Event):
     _is_random_global = True
 
     def normal_event(self, group_id: str, play_lev: str):
+        
         super().__init__(group_id)
  #       try:
         play_level = float(play_lev)
@@ -164,7 +181,7 @@ class PlayEvent(_Event):
         final_rating = random_rating * 0.8 * play_level
         ref_min_rating = play_level * 84
         now_rating = self.rhythm_db.add_rating(self.user_id, self.action_num)
-        if 0 < self.user_data[2] / 15 - ref_min_rating  < play_level * 105.5:
+        if 0 < self.user_data[2] / 15 - ref_min_rating and self.user_data[2] / 15 - ref_min_rating < play_level * 105.5:
             return
 
         append_text = f"打歌成功！{self.group_id}，得分：{random_rating}，获得Rating：{final_rating}，现在总rating：{now_rating}"
