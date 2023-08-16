@@ -151,8 +151,15 @@ class PlayEventNormal(_Event):
     _public_events = []
     _is_random = {}
     _is_random_global = True
-    # if 0 < self.user_data[2] / 15 - ref_min_rating and self.user_data[2] / 15 - ref_min_rating < play_level * 105.5:
-    #    
+    def normal_event(self, group_id: str, play_lev: str):
+        super().__init__(group_id)
+        play_level = float(play_lev)
+        random_rating = random.uniform(97.0, 100.4)
+        final_rating = random_rating * 0.8 * play_level
+        ref_min_rating = play_level * 84
+        now_rating = self.rhythm_db.add_rating(self.user_id, self.action_num)
+        if 0 < self.user_data[2] / 15 - ref_min_rating and self.user_data[2] / 15 - ref_min_rating < play_level * 105.5:
+            
     # if event.user_data.self.user_data[2] / 15 < ref_min_rating:
     #
     # if event.user_data.self.user_data[2] / 15 - ref_min_rating > play_lev * 112:
@@ -172,19 +179,24 @@ class PlayEvent(_Event):
     def normal_event(self, group_id: str, play_lev: str):
         
         super().__init__(group_id)
- #       try:
         play_level = float(play_lev)
- #       except ValueError:
- #           return
-        #super().__init__(play_level) # type: ignore
-        random_rating = random.uniform(97.0, 100.4)
-        final_rating = random_rating * 0.8 * play_level
         ref_min_rating = play_level * 84
-        now_rating = self.rhythm_db.add_rating(self.user_id, self.action_num)
         if 0 < self.user_data[2] / 15 - ref_min_rating and self.user_data[2] / 15 - ref_min_rating < play_level * 105.5:
+            random_rating = random.uniform(97.0, 100.4)
+            final_rating = random_rating * 0.8 * play_level
+            now_rating = self.rhythm_db.add_rating(self.user_id, self.action_num)
+            append_text = f"打歌成功！{self.user_id}，得分：{random_rating}，获得Rating：{final_rating}，现在总rating：{now_rating}"
+            return
+        elif self.user_data[2] / 15 < ref_min_rating:
+            random_rating = random.randint(40, 94)
+            final_rating = random_rating * 0.8 * play_level
+            append_text = f"越级失败！{self.user_id}，得分：{random_rating}，获得Rating：{final_rating}，现在总rating：{now_rating}"
+            return
+        elif self.user_data[2] / 15 - ref_min_rating > play_lev * 112:
+            final_rating = 100.5 * 0.8 * play_level
+            append_text = f"下埋nb！{self.user_id}，得分：100.5000%，获得Rating：{final_rating},现在总rating：{now_rating}"
             return
 
-        append_text = f"打歌成功！{self.group_id}，得分：{random_rating}，获得Rating：{final_rating}，现在总rating：{now_rating}"
         self.rhythm_db.cd_update_stamp(self.user_id, Action.PLAY)
         return append_text
 

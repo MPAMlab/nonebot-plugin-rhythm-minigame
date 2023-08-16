@@ -36,20 +36,6 @@ def probability(value, action: Action, *, priority: int = 5, group_id_list: list
     return wrapper
 
 # region 打歌特殊事件
-# 越级
-@probability(0.9, Action.PLAY, priority=5)
-def play_event_not_qualified(event: PlayEvent):
-    #super().__init__(play_lev)
-
-    random_rating = random.randint(40, 94)
-    final_rating = random_rating * 0.8 
-    ref_min_rating = play_lev * 84
-    if event.user_data.OVERALL_RATING / 15 < ref_min_rating:
-        return
-
-    append_text = f"越级失败！{event.group_id}，得分：{random_rating}，获得Rating：{final_rating}"
-    event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
-    return append_text
 
 # 越级成功
 
@@ -64,24 +50,6 @@ def play_event_not_qualified_lucky(event: PlayEvent):
     append_text = f"越级成功！{event.group_id}，得分：{random_rating}，获得Rating：{final_rating}"
     event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
     return append_text
-
-"""
-# 普通打
-
-@probability(0.8, Action.PLAY, priority=5)
-def play_event_normal(event: PlayEvent):
-    random_rating = random.uniform(97.0, 100.4)
-    final_rating = random_rating * 0.8 * play_lev
-    ref_min_rating = play_lev * 84
-
-    if 0 < event.user_data.OVERALL_RATING / 15 - ref_min_rating < play_lev * 105.5:
-        return
-
-    append_text = f"打歌成功！{event.group_id}，得分：{random_rating}，获得Rating：{final_rating}"
-    event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
-    return append_text
-"""
-
 # 超常发挥
 
 @probability(0.2, Action.PLAY, priority=5)
@@ -96,21 +64,6 @@ def play_event_normal_superb(event: PlayEvent):
     append_text = f"超常发挥！{event.group_id}，得分：{random_rating}，获得Rating：{final_rating}"
     event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
     return append_text
-
-# 下埋
-
-@probability(0.1, Action.PLAY, priority=5)
-def play_event_overdone(event: PlayEvent):
-
-    final_rating = 100.5 * 0.8 * play_lev
-    ref_min_rating = play_lev * 84
-    if event.user_data.OVERALL_RATING / 15 - ref_min_rating > play_lev * 112:
-        return
-
-    append_text = f"下埋完成！{event.group_id}，得分：{random_rating}，获得Rating：{final_rating}"
-    event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
-    return append_text
-
 # endregion
 
 # region 单曲特殊事件
