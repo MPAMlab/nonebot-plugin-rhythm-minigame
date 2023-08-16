@@ -291,6 +291,8 @@ def get_num_arg(text, event_type, group_id):
     else:
         return None
 
+def get_final_rating():
+
 
 async def pre_get_data(event, bot, cmd, cmd_ori):
     user_qq = event.get_user_id()
