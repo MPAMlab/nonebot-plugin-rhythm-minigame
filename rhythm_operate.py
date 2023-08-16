@@ -165,6 +165,31 @@ class PlayEventNormal(_Event):
     # if event.user_data.self.user_data[2] / 15 - ref_min_rating > play_lev * 112:
     #
 """
+# 测试用，之后改
+def get_final_rating(random_rating: float):
+    final_rating : float
+    if 100 < random_rating < 100.5:
+        final_rating = 108 + (random_rating - 100) * 8
+    elif 99.5 < random_rating < 100:
+        final_rating = 105.5 + (random_rating - 99.5) * 5
+    elif 99 < random_rating < 99.5:
+        final_rating = 104 + (random_rating - 99) * 3
+    elif 98 < random_rating < 99:
+        final_rating = 101.5 + (random_rating - 98) * 5
+    elif 97 < random_rating < 98:
+        final_rating = 100 + (random_rating - 97) * 3
+    elif 94 < random_rating < 97:
+        final_rating = 84 + (random_rating - 94) * (5 + 1 / 3)
+    elif 90 < random_rating < 94:
+        final_rating = 68 + (random_rating - 90) * 4
+    elif 80 < random_rating < 90:
+        final_rating = 64 + (random_rating - 80) * 0.4
+    elif 0 < random_rating < 80:
+        final_rating = random_rating * 0.8
+    else: 
+        return
+
+    return final_rating
 class PlayEvent(_Event):
     """
     打歌事件
@@ -182,14 +207,16 @@ class PlayEvent(_Event):
         play_level = float(play_lev)
         ref_min_rating = play_level * 84
         if 0 < self.user_data[2] / 15 - ref_min_rating and self.user_data[2] / 15 - ref_min_rating < play_level * 105.5:
-            random_rating = random.uniform(97.0, 100.4)
-            final_rating = random_rating * 0.8 * play_level
+            random_rating = random.uniform(97.0000, 100.4000)
+            final_rating = get_final_rating(random_rating)
+            rating = final_rating * play_level
             now_rating = self.rhythm_db.add_rating(self.user_id, self.action_num)
-            append_text = f"打歌成功！{self.user_id}，得分：{random_rating}，获得Rating：{final_rating}，现在总rating：{now_rating}"
+            append_text = f"打歌成功！{self.user_id}，得分：{random_rating}，获得Rating：{rating}，现在总rating：{now_rating}"
             return
         elif self.user_data[2] / 15 < ref_min_rating:
             random_rating = random.randint(40, 94)
-            final_rating = random_rating * 0.8 * play_level
+            final_rating = get_final_rating(random_rating)
+            rating = final_rating * play_level
             append_text = f"越级失败！{self.user_id}，得分：{random_rating}，获得Rating：{final_rating}，现在总rating：{now_rating}"
             return
         elif self.user_data[2] / 15 - ref_min_rating > play_lev * 112:
