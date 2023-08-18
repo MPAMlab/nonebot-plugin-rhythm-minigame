@@ -41,6 +41,7 @@ def probability(value, action: Action, *, priority: int = 5, group_id_list: list
 
 @probability(0.1, Action.PLAY, priority=5)
 def play_event_not_qualified_lucky(event: PlayEvent):
+    super()
     final_rating = 100.5 * 0.8 * play_lev
     ref_min_rating = play_lev * 84
 
