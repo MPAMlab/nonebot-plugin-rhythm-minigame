@@ -67,7 +67,7 @@ random_config()
 async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message = RawCommand()):
     try:
         user_qq, group_id, name, msg_at = await pre_get_data(event, bot, cmd, cmd_play_ori)
-        play_lev = get_num_arg(args.extract_plain_text(), PlayEvent, group_id)
+        play_lev = str(get_num_arg(args.extract_plain_text(), PlayEvent, group_id))
         play_level = float(play_lev)
     except ArgsError as e:
         await bot.send(event=event, message=str(e))
@@ -82,7 +82,7 @@ async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message =
         msg_txt = f"您还得等待{wait_time // 60}分钟才能打歌"
     elif wait_time < 0:
         msg_txt = f"你被禁止打歌啦！{(abs(wait_time) + CD.PLAY.value) // 60}分钟后才能继续！"
-    elif play_lev > 15 or play_lev < 1:
+    elif play_level > 15 or play_level < 1:
         msg_txt = "打歌等级必须在1-15之间！"
     else:
         event_ = PlayEvent(group_id)
@@ -190,7 +190,7 @@ https://github.com/MPAMlab/nonebot-plugin-rhythm-minigame"""
 @rhythm_rank.handle()
 async def _(bot: Bot, event: Event, args: Message = CommandArg(), cmd: Message = RawCommand()):
     try:
-        user_qq, group_id, name, msg_at = await pre_get_data(event, bot, cmd, cmd_top_ori)
+        user_qq, group_id, name, msg_at = await pre_get_data(event, bot, cmd, cmd_rank_ori)
     except CommandError:
         return
     args_list = args.extract_plain_text().strip().split()
@@ -291,7 +291,25 @@ def get_num_arg(text, event_type, group_id):
     else:
         return None
 
-def get_final_rating():
+# 计算分段得分
+def get_final_rating(random_rating: float) -> int:
+    rating_ranges = {
+        (100, 100.5): lambda x: int(108 + (x - 100) * 8),
+        (99.5, 100): lambda x: int(105.5 + (x - 99.5) * 5),
+        (99, 99.5): lambda x: int(104 + (x - 99) * 3),
+        (98, 99): lambda x: int(101.5 + (x - 98) * 5),
+        (97, 98): lambda x: int(100 + (x - 97) * 3),
+        (94, 97): lambda x: int(84 + (x - 94) * (5 + (1 / 3))),
+        (90, 94): lambda x: int(68 + (x - 90) * 4),
+        (80, 90): lambda x: int(64 + (x - 80) * 0.4),
+        (0, 80): lambda x: int(x * 0.8)
+    }
+
+    for (lower, upper), formula in rating_ranges.items():
+        if lower < random_rating < upper:
+            return formula(random_rating)
+
+    return 0  # Default value if no range is matched
 
 
 async def pre_get_data(event, bot, cmd, cmd_ori):

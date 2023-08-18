@@ -5,7 +5,7 @@ import random
 from .rhythm_handle import rhythmDataManage, Action, rhythmData
 from .config import MAX, MIN, CD, rhythm_config
 from enum import Enum
-#from .__init__ import play_lev 
+from .__init__ import get_final_rating
 
 def cd_wait_time(group_id, user_id, operate: Action) -> int:
     """获取需要等待的CD秒数，小于0则被ban，大于0则还在冷却，等于0则可操作"""
@@ -165,25 +165,7 @@ class PlayEventNormal(_Event):
     # if event.user_data.self.user_data[2] / 15 - ref_min_rating > play_lev * 112:
     #
 """
-# 计算分段得分
-def get_final_rating(random_rating: float) -> int:
-    rating_ranges = {
-        (100, 100.5): lambda x: int(108 + (x - 100) * 8),
-        (99.5, 100): lambda x: int(105.5 + (x - 99.5) * 5),
-        (99, 99.5): lambda x: int(104 + (x - 99) * 3),
-        (98, 99): lambda x: int(101.5 + (x - 98) * 5),
-        (97, 98): lambda x: int(100 + (x - 97) * 3),
-        (94, 97): lambda x: int(84 + (x - 94) * (5 + (1 / 3))),
-        (90, 94): lambda x: int(68 + (x - 90) * 4),
-        (80, 90): lambda x: int(64 + (x - 80) * 0.4),
-        (0, 80): lambda x: int(x * 0.8)
-    }
 
-    for (lower, upper), formula in rating_ranges.items():
-        if lower < random_rating < upper:
-            return formula(random_rating)
-
-    return 0  # Default value if no range is matched
 
 class PlayEvent(_Event):
     """
