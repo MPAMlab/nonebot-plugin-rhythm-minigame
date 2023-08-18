@@ -68,13 +68,13 @@ async def _(event: Event, bot: Bot, args: Message = CommandArg(), cmd: Message =
     try:
         user_qq, group_id, name, msg_at = await pre_get_data(event, bot, cmd, cmd_play_ori)
         play_lev = str(get_num_arg(args.extract_plain_text(), PlayEvent, group_id))
-        play_level = float(play_lev)
+        
     except ArgsError as e:
         await bot.send(event=event, message=str(e))
         return
     except CommandError:
         return
-
+    play_level = float(play_lev)
     wait_time = cd_wait_time(group_id, user_qq, Action.PLAY)
     # 可见cd_wait_time函数的注释
     if wait_time > 0:

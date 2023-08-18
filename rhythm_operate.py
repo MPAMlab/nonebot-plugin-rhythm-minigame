@@ -42,6 +42,7 @@ class _Event:
             self.user_id = None
             self.user_data = rhythmData(0, "0", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
             self._private_events = []
+            self.play_lev = 0
             #self.thing = rhythm_config.special_thing_group.get(group_id, rhythm_config.rhythm_thing)
             #if isinstance(self.thing, list):
             #    self.thing = self.thing[0]
@@ -77,7 +78,7 @@ class _Event:
         else:
             return self._is_random_global
 
-    def _special_event(self):
+    def _special_event(self): #此处为判断特殊事件部分，考虑在special_event增加判断
         """按照优先级排布，同优先级随机排布"""
         events = self._private_events + self._public_events
         events.sort(key=lambda x: (x.priority, random.random()))
@@ -97,7 +98,7 @@ class _Event:
         if pre_error:
             return pre_error
 
-        return_data = self._special_event()
+        return_data = self._special_event() 
         #self.rhythm_db.add_user_log(self.user_id, self.event_type)
         if return_data:
             return return_data
@@ -122,9 +123,7 @@ class _Event:
                 self.action_num = num
                 return
             else:
-                return "数量和限制不符！"
-        #self.action_num = random.uniform(min_num, min(max_num, self.user_data.))
-
+                return "级别不正确！"
 
 class _Event2(_Event):
     """双用户事件"""

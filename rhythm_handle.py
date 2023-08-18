@@ -218,11 +218,11 @@ class rhythmDataManage:
         cur.execute(sql, (user_id,))
         data = cur.fetchone()
         now_no = data[0]
-        user_num = (data[3] // LEVEL, data[2])
+        user_num = (data[3], data[2])
         while now_no != 1:
             cur.execute("select * from RHYTHM_DATA where NO=?", (now_no - 1,))
             data = cur.fetchone()
-            up_num = (data[3] // LEVEL, data[2])
+            up_num = (data[3], data[2])
             if user_num > up_num:
                 cur.execute(f"update RHYTHM_DATA set NO={0} where NO={now_no}")
                 cur.execute(f"update RHYTHM_DATA set NO={now_no} where NO={now_no - 1}")
@@ -233,7 +233,7 @@ class rhythmDataManage:
         while now_no != self._get_id() - 1:
             cur.execute("select * from RHYTHM_DATA where NO=?", (now_no + 1,))
             data = cur.fetchone()
-            down_num = (data[3] // LEVEL, data[2])
+            down_num = (data[3], data[2])
             if user_num < down_num:
                 cur.execute("update RHYTHM_DATA set NO=? where NO=?", (0, now_no))
                 cur.execute("update RHYTHM_DATA set NO=? where NO=?", (now_no, now_no + 1))
@@ -254,7 +254,7 @@ class rhythmDataManage:
             self._create_user(user_id)
             data = (0, user_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         self.conn.commit()
-        return rhythmData(*data, level=data[3] // LEVEL)
+        return rhythmData(*data, level=data[3])
 
     def get_all_data(self) -> List[rhythmData]:
         """获取一个数据库内的所有用户数据"""
@@ -262,7 +262,7 @@ class rhythmDataManage:
         cur.execute(f"select * from RHYTHM_DATA")
         data = cur.fetchall()
         self.conn.commit()
-        return [rhythmData(*item, level=item[3] // LEVEL) for item in data]
+        return [rhythmData(*item, level=item[3]) for item in data]
 
 if __name__ == "__main__":
     DATABASE = Path() / ".." / ".." / ".." / "data" / "rhythm"
