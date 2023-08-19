@@ -34,7 +34,7 @@ def probability(value, action: Action, *, priority: int = 5, group_id_list: list
             event_list.append(inner)
         return inner
     return wrapper
-
+"""
 # region 打歌特殊事件
 
 # 越级成功
@@ -56,8 +56,8 @@ def play_event_not_qualified_lucky(event: PlayEvent):
 @probability(0.2, Action.PLAY, priority=5)
 def play_event_normal_superb(event: PlayEvent):
 
-    final_rating = 100.5 * 0.8 * play_lev
-    ref_min_rating = play_lev * 84
+    final_rating = 100.5 * 0.8 * play_level
+    ref_min_rating = play_level * 84
 
     if 105.5 < event.user_data.OVERALL_RATING / 15 - ref_min_rating < play_lev * 112:
         return
@@ -66,7 +66,7 @@ def play_event_normal_superb(event: PlayEvent):
     event.rhythm_db.cd_update_stamp(event.user_id, Action.PLAY)
     return append_text
 # endregion
-
+"""
 # region 单曲特殊事件
 
 # 断网

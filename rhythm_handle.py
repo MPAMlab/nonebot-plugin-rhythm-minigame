@@ -159,7 +159,7 @@ class rhythmDataManage:
             self._create_user(user_id)
             result = (user_id, 0, 0, 0, 0, 0)
         self.conn.commit()
-        return result[action.value + 1]
+        return int(result[action.value + 1])
 
     @type_assert(object, "user_id", Action, int)
     def cd_reduce_action(self, user_id: str, action: Action, reduce_time) -> None:
@@ -199,13 +199,14 @@ class rhythmDataManage:
         if not rating:
             self._create_user(user_id)
             rating = (0, user_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-        for rating in rating:
-            if new_rating < rating[0]:
+        rating1 = list(map(int, rating))
+        for i in range(len(rating1)):
+            if new_rating < rating1[i]:
                 # Insert the new number into the database
-                rating.append(new_rating)
-                rating.sort(reverse=True)
-                rating.pop()
-        overall_rating = sum(rating)
+                rating1.append(new_rating)
+                rating1.sort(reverse=True)
+                rating1.pop()
+        overall_rating = sum(rating1)
         cur.execute("UPDATE RHYTHM_DATA SET BEST_ONE=?, BEST_TWO=?, BEST_THREE=?, BEST_FOUR=?, BEST_FIVE=?, BEST_SIX=?, BEST_SEVEN=?, BEST_EIGHT=?, BEST_NINE=?, BEST_TEN=?", rating)
         self.conn.commit()
         return overall_rating
