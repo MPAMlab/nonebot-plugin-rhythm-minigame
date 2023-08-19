@@ -5,6 +5,12 @@ idea by @书狼
 
 Origin from https://github.com/Mai-icy/nonebot-plugin-bread-shop
 
+本 repo 在 Mai-icy/nonebot-plugin-bread-shop 上进行了部分功能的删除和重写，因此从 fork 中独立了出来
+
+不推荐在本 repo 上重新进行修改，如需进行相关功能修改请考虑[原 repo](https://github.com/Mai-icy/nonebot-plugin-bread-shop)
+
+可能会考虑同时兼容原 repo 运行在同一个机器人上
+
 ## 功能：
 ### 打歌
 
@@ -16,7 +22,7 @@ Origin from https://github.com/Mai-icy/nonebot-plugin-bread-shop
 
 根据不同情况会有以下结果（Ra. min 指打的歌需要的最小 rating）：
 
-- 越级：``Rating /15 < Ra. min``，90% 越级失败，有 10% 可能性超常发挥（越级成功）按100.5计算
+- 越级：``Rating / 15 < Ra. min``，95% 越级失败，有 5% 可能性超常发挥（越级成功）按100.5计算
 - 正常打：``Rating / 15 - Ra. min ∈ [0, 难度 * 105.5)``，20%可能超常发挥算 100.5%，80% 可能性在 [97, 100.5) % 中随机
 - 下埋：``Rating / 15 - Ra. min ∈ [难度 * 105.5, 难度 * 112]``，必 100.5%
 
@@ -29,7 +35,7 @@ Ra. min 计算方法：``难度 * 等级AAA（84）``
 ### 特殊事件
 
 - 断网：打歌cd被迫+15分钟
-- 拼机：随机事件，可以多打一首歌，不算每日上限
+- 拼机：随机事件，自动多打一首相同等级的歌，不算每日上限
 - 手套破了：打歌分数 -5%
 ### 段位模式 （TO-DO）
 
@@ -60,7 +66,7 @@ Ra. min 计算方法：``难度 * 等级AAA（84）``
 | 99               | 104           | score=104+(border-99)*3     | 99-99.5         |
 | 98               | 101.5         | score=101.5+(border-98)*5   | 98-99           |
 | 97               | 100           | score=100+(border-97)*3     | 97-98           |
-| 94               | 84            | score=84+(border-94)*5.3333 | 94-97           |
+| 94               | 84            | int(score=84+(border-94)*5.3333) | 94-97           |
 | 90               | 68            | score=68+(border-90)*4      | 90-94           |
 | 80               | 64            | score=64+(border-80)*0.4    | 80-90           |
 | 75               | 60            | score=border*0.8            | 0-75            |

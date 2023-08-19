@@ -193,7 +193,7 @@ class PlayEvent(_Event):
             else:
                 final_rating = play_level * 112
                 now_rating = self.rhythm_db.add_rating(str(self.user_id), int(self.action_num))
-                append_text = f"超常发挥！{self.user_id}，得分：{random_rating}，获得Rating：{final_rating}，现在总rating：{now_rating}"
+                append_text = f"超常发挥！{self.user_id}，得分：100.5000%，获得Rating：{final_rating}，现在总rating：{now_rating}"
                 return append_text
         elif self.user_data[2] / 15 < ref_min_rating:
             if random.uniform(0.0, 1.0) > 0.05:
