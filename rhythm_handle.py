@@ -238,8 +238,10 @@ class rhythmDataManage:
         # Print the top 5 entries
         print("Top 5 entries with the largest OVERALL_RATING:")
         for i, index in enumerate(reversed(top_5_indices)):
-            entry = rows[index]
-            print(f"{i+1}. userid: {entry[0]}, overall_rating: {entry[1]}")
+            userid = userid_col[index]
+            overall_rating = overall_rating_col[index]
+            print(f"{i+1}. userid: {userid}, overall_rating: {overall_rating}")
+
     
         """redo
         @type_assert(object, "user_id")
