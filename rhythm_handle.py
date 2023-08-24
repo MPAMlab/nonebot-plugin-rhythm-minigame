@@ -212,7 +212,36 @@ class rhythmDataManage:
         self.conn.commit()
         return overall_rating
     
-        """这块需要重写， SQL里暂时没有排名信息，可以单独把群内
+   
+    @type_assert(object, "user_id")
+    def update_rank(self, user_id: str) -> int:
+        """更新用户排名并返回"""
+        cur = self.conn.cursor()
+        # Execute the SELECT query to fetch data
+        query = "SELECT USERID, OVERALL_RATING FROM RHYTHM_DATA"
+        cur.execute(query)
+
+        # Fetch all the rows from the result set
+        rows = cur.fetchall()
+
+
+        # Convert the fetched SQL data into a numpy array
+        arr = np.array(rows)
+
+        # Get the USERID and OVERALL_RATING columns
+        userid_col = arr[:, 0]
+        overall_rating_col = arr[:, 1]
+
+        # Find the indices of the top 5 overall ratings
+        top_5_indices = np.argsort(overall_rating_col)[-5:]
+
+        # Print the top 5 entries
+        print("Top 5 entries with the largest OVERALL_RATING:")
+        for i, index in enumerate(reversed(top_5_indices)):
+            entry = rows[index]
+            print(f"{i+1}. userid: {entry[0]}, overall_rating: {entry[1]}")
+    
+        """redo
         @type_assert(object, "user_id")
         def update_no(self, user_id: str) -> int:
     	    #更新用户排名并返回
