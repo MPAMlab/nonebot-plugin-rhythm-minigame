@@ -177,10 +177,12 @@ class PlayEvent(_Event):
     _is_random = {}
     _is_random_global = True
 
-    def normal_event(self, group_id: str, play_lev: str):
+    def normal_event(self, group_id: str, play_lev: int):
         
         super().__init__(group_id)
-        play_level = float(play_lev)
+        play_level = random.uniform(0.00, 0.99)
+        play_level = play_lev + play_level
+
         ref_min_rating = play_level * 84
         if 0 < self.user_data[2] / 15 - ref_min_rating and self.user_data[2] / 15 - ref_min_rating < play_level * 105.5:
             if random.uniform(0.0, 1.0) > 0.1:

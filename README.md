@@ -16,7 +16,7 @@ Origin from https://github.com/Mai-icy/nonebot-plugin-bread-shop
 
 使用时指定等级，等级范围1-15
 
-**示例命令：打歌 Basic；打歌 Adv；打歌 13**
+**示例命令：打歌 7；打歌 13**
 
 难度会随机小数点后两位，指定难度无法指定小数点后难度
 
