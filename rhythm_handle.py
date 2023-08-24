@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 import sqlite3
 import time
+import numpy as np
 
 from collections import namedtuple
 from enum import Enum
@@ -210,40 +211,42 @@ class rhythmDataManage:
         cur.execute("UPDATE RHYTHM_DATA SET BEST_ONE=?, BEST_TWO=?, BEST_THREE=?, BEST_FOUR=?, BEST_FIVE=?, BEST_SIX=?, BEST_SEVEN=?, BEST_EIGHT=?, BEST_NINE=?, BEST_TEN=?", rating)
         self.conn.commit()
         return overall_rating
-        
-    @type_assert(object, "user_id")
-    def update_no(self, user_id: str) -> int:
-        """更新用户排名并返回"""
-        cur = self.conn.cursor()
-        sql = "select * from RHYTHM_DATA where USERID=?"
-        cur.execute(sql, (user_id,))
-        data = cur.fetchone()
-        now_no = data[0]
-        user_num = (data[3], data[2])
-        while now_no != 1:
-            cur.execute("select * from RHYTHM_DATA where NO=?", (now_no - 1,))
+    
+        """这块需要重写， SQL里暂时没有排名信息，可以单独把群内
+        @type_assert(object, "user_id")
+        def update_no(self, user_id: str) -> int:
+    	    #更新用户排名并返回
+            cur = self.conn.cursor()
+            sql = "select * from RHYTHM_DATA where USERID=?"
+            cur.execute(sql, (user_id,))
             data = cur.fetchone()
-            up_num = (data[3], data[2])
-            if user_num > up_num:
-                cur.execute(f"update RHYTHM_DATA set NO={0} where NO={now_no}")
-                cur.execute(f"update RHYTHM_DATA set NO={now_no} where NO={now_no - 1}")
-                cur.execute(f"update RHYTHM_DATA set NO={now_no - 1} where NO={0}")
-            else:
-                break
-            now_no -= 1
-        while now_no != self._get_id() - 1:
-            cur.execute("select * from RHYTHM_DATA where NO=?", (now_no + 1,))
-            data = cur.fetchone()
-            down_num = (data[3], data[2])
-            if user_num < down_num:
-                cur.execute("update RHYTHM_DATA set NO=? where NO=?", (0, now_no))
-                cur.execute("update RHYTHM_DATA set NO=? where NO=?", (now_no, now_no + 1))
-                cur.execute("update RHYTHM_DATA set NO=? where NO=?", (now_no + 1, 0))
-            else:
-                break
-            now_no += 1
-        self.conn.commit()
-        return now_no
+            now_no = data[0]
+            user_num = (data[3], data[2])
+            while now_no != 1:
+                cur.execute("select * from RHYTHM_DATA where NO=?", (now_no - 1,))
+                data = cur.fetchone()
+                up_num = (data[3], data[2])
+                if user_num > up_num:
+                    cur.execute(f"update RHYTHM_DATA set NO={0} where NO={now_no}")
+                    cur.execute(f"update RHYTHM_DATA set NO={now_no} where NO={now_no - 1}")
+                    cur.execute(f"update RHYTHM_DATA set NO={now_no - 1} where NO={0}")
+                else:
+                    break
+                now_no -= 1
+            while now_no != self._get_id() - 1:
+                cur.execute("select * from RHYTHM_DATA where NO=?", (now_no + 1,))
+                data = cur.fetchone()
+                down_num = (data[3], data[2])
+                if user_num < down_num:
+                    cur.execute("update RHYTHM_DATA set NO=? where NO=?", (0, now_no))
+                    cur.execute("update RHYTHM_DATA set NO=? where NO=?", (now_no, now_no + 1))
+                    cur.execute("update RHYTHM_DATA set NO=? where NO=?", (now_no + 1, 0))
+                else:
+                    break
+                now_no += 1
+            self.conn.commit()
+            return now_no
+            """
 
     @type_assert(object, "user_id")
     def get_RHYTHM_DATA(self, user_id: str) -> rhythmData:
